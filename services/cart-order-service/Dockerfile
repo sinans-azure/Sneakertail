@@ -1,7 +1,9 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
+COPY services/catalog-service/package.json ./services/catalog-service/package.json
 COPY services/cart-order-service/package.json ./services/cart-order-service/package.json
+COPY services/frontend/package.json ./services/frontend/package.json
 RUN npm ci --omit=dev --workspace services/cart-order-service
 
 FROM node:20-alpine AS runtime

@@ -15,6 +15,7 @@ export async function query(text, params = []) {
 }
 
 export async function ensureSchema() {
+  await query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
   await query('CREATE SCHEMA IF NOT EXISTS catalog');
   await query(`
     CREATE TABLE IF NOT EXISTS catalog.products (

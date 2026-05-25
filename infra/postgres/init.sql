@@ -1,10 +1,10 @@
 CREATE SCHEMA IF NOT EXISTS catalog;
 CREATE SCHEMA IF NOT EXISTS orders;
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS catalog.products (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   brand TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS catalog.products (
 );
 
 CREATE TABLE IF NOT EXISTS orders.carts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id TEXT UNIQUE NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS orders.carts (
 );
 
 CREATE TABLE IF NOT EXISTS orders.cart_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   cart_id UUID NOT NULL REFERENCES orders.carts(id) ON DELETE CASCADE,
   product_id UUID NOT NULL,
   product_name TEXT NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS orders.cart_items (
 );
 
 CREATE TABLE IF NOT EXISTS orders.orders (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   cart_id UUID NOT NULL REFERENCES orders.carts(id),
   customer_email TEXT NOT NULL,
   total_cents INTEGER NOT NULL CHECK (total_cents >= 0),

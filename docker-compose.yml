@@ -53,9 +53,6 @@ services:
     build:
       context: .
       dockerfile: services/frontend/Dockerfile
-      args:
-        VITE_CATALOG_API_URL: http://localhost:4001
-        VITE_CART_API_URL: http://localhost:4002
     depends_on:
       - catalog-service
       - cart-order-service

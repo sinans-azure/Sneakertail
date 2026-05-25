@@ -2,7 +2,7 @@
 
 Microservices boilerplate for a sneaker store clone with:
 
-- `services/frontend`: React + Tailwind CSS storefront.
+- `services/frontend`: static HTML, CSS, and JavaScript storefront.
 - `services/catalog-service`: inventory, product detail, and pricing API.
 - `services/cart-order-service`: shopping session, cart, and checkout API.
 - `infra/postgres`: shared PostgreSQL initialization for isolated schemas.
@@ -43,6 +43,13 @@ Services:
 - Catalog API: http://localhost:4001
 - Cart & Order API: http://localhost:4002
 - PostgreSQL: localhost:5432
+
+The frontend uses same-origin proxy paths by default:
+
+- `/catalog-api` -> Catalog Service
+- `/cart-api` -> Cart & Order Service
+
+For direct non-Docker frontend development, edit `services/frontend/config.js` and set those values to `http://localhost:4001` and `http://localhost:4002`.
 
 ## Database Boundary Strategy
 
