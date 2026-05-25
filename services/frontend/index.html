@@ -63,7 +63,7 @@
         </section>
       </section>
 
-      <section class="view auth-page" id="authView">
+      <section class="view auth-page single-auth" id="loginView">
         <div class="auth-card">
           <div>
             <p class="eyebrow">Account</p>
@@ -74,8 +74,11 @@
             <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
             <button class="primary-button" type="submit">Login</button>
           </form>
+          <p class="auth-switch">New here? <button id="showRegisterButton" type="button">Create an account</button></p>
         </div>
+      </section>
 
+      <section class="view auth-page single-auth" id="registerView">
         <div class="auth-card">
           <div>
             <p class="eyebrow">New customer</p>
@@ -87,6 +90,7 @@
             <label>Password<input id="registerPassword" type="password" autocomplete="new-password" minlength="6" required /></label>
             <button class="primary-button" type="submit">Create account</button>
           </form>
+          <p class="auth-switch">Already registered? <button id="showLoginButton" type="button">Login instead</button></p>
         </div>
       </section>
 

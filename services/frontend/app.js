@@ -68,6 +68,8 @@
     catalogTitle: document.getElementById('catalogTitle'),
     loginForm: document.getElementById('loginForm'),
     registerForm: document.getElementById('registerForm'),
+    showRegisterButton: document.getElementById('showRegisterButton'),
+    showLoginButton: document.getElementById('showLoginButton'),
     cartItems: document.getElementById('cartItems'),
     cartTotal: document.getElementById('cartTotal'),
     checkoutItems: document.getElementById('checkoutItems'),
@@ -105,16 +107,29 @@
   }
 
   async function request(url, options = {}) {
-    const response = await fetch(url, options);
+    let response;
+
+    try {
+      response = await fetch(url, options);
+    } catch (error) {
+      error.canFallback = true;
+      throw error;
+    }
+
     const contentType = response.headers.get('content-type') || '';
     const payload = contentType.includes('application/json') ? await response.json() : null;
 
     if (!response.ok) {
-      throw new Error(payload?.error || `Request failed with ${response.status}`);
+      const error = new Error(payload?.error || `Request failed with ${response.status}`);
+      error.status = response.status;
+      error.canFallback = false;
+      throw error;
     }
 
     if (!payload || !Object.prototype.hasOwnProperty.call(payload, 'data')) {
-      throw new Error('API response was not valid JSON data');
+      const error = new Error('API response was not valid JSON data');
+      error.canFallback = true;
+      throw error;
     }
 
     return payload;
@@ -127,6 +142,9 @@
       try {
         return await request(joinUrl(baseUrl, path), options);
       } catch (error) {
+        if (error.canFallback === false) {
+          throw error;
+        }
         errors.push(error.message);
       }
     }
@@ -152,6 +170,14 @@
   function showView(viewId) {
     elements.views.forEach((view) => view.classList.toggle('active', view.id === viewId));
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showLogin() {
+    showView('loginView');
+  }
+
+  function showRegister() {
+    showView('registerView');
   }
 
   function saveAuth(data) {
@@ -339,7 +365,7 @@
   async function addToCart(productId) {
     if (!state.token) {
       setNotice('Please log in or register before adding items to cart.', 'warn');
-      showView('authView');
+      showLogin();
       return;
     }
 
@@ -403,6 +429,12 @@
 
   async function checkout(event) {
     event.preventDefault();
+    const validationMessage = validateCheckout();
+
+    if (validationMessage) {
+      setNotice(validationMessage, 'warn');
+      return;
+    }
 
     try {
       const payload = await requestFrom(cartApis, '/api/cart/current/checkout', jsonOptions({
@@ -427,8 +459,10 @@
     elements.homeButton.addEventListener('click', () => showView('storeView'));
     elements.previousFeatured.addEventListener('click', () => moveFeatured(-1));
     elements.nextFeatured.addEventListener('click', () => moveFeatured(1));
-    elements.heroLoginButton.addEventListener('click', () => showView(state.user ? 'cartView' : 'authView'));
-    elements.cartNavButton.addEventListener('click', () => showView(state.user ? 'cartView' : 'authView'));
+    elements.heroLoginButton.addEventListener('click', () => showView(state.user ? 'cartView' : 'loginView'));
+    elements.cartNavButton.addEventListener('click', () => showView(state.user ? 'cartView' : 'loginView'));
+    elements.showRegisterButton.addEventListener('click', showRegister);
+    elements.showLoginButton.addEventListener('click', showLogin);
     elements.continueShoppingButton.addEventListener('click', () => showView('storeView'));
     elements.backToCartButton.addEventListener('click', () => showView('cartView'));
     elements.successShopButton.addEventListener('click', () => showView('storeView'));
@@ -437,7 +471,7 @@
       if (state.user) {
         logout();
       } else {
-        showView('authView');
+        showLogin();
       }
     });
 
@@ -485,6 +519,24 @@
         .trim()
         .slice(0, 19);
     });
+  }
+
+  function validateCheckout() {
+    const email = elements.customerEmail.value.trim();
+    const cardholderName = document.getElementById('cardholderName').value.trim();
+    const cardNumber = elements.cardNumber.value.replace(/\D/g, '');
+    const expiry = document.getElementById('cardExpiry').value.trim();
+    const cvv = document.getElementById('cardCvv').value.trim();
+
+    if (!state.token) return 'Please log in before checkout.';
+    if (!state.cart.items?.length) return 'Your cart is empty.';
+    if (!email) return 'Email is required.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Enter a valid email address.';
+    if (!cardholderName) return 'Cardholder name is required.';
+    if (cardNumber.length !== 16) return 'Card number must contain exactly 16 digits.';
+    if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) return 'Expiry must use MM/YY format.';
+    if (!/^\d{3,4}$/.test(cvv)) return 'CVV must be 3 or 4 digits.';
+    return '';
   }
 
   wireEvents();

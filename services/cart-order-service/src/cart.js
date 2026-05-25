@@ -167,10 +167,34 @@ cartRouter.patch('/:sessionId/items/:itemId', async (req, res, next) => {
 cartRouter.post('/:sessionId/checkout', async (req, res, next) => {
   try {
     const { customerEmail, cardholderName, cardNumber, expiry, cvv } = req.body;
+    const email = String(customerEmail || '').trim();
+    const nameOnCard = String(cardholderName || '').trim();
+    const cardExpiry = String(expiry || '').trim();
+    const cardCvv = String(cvv || '').trim();
     const cleanedCardNumber = String(cardNumber || '').replace(/\D/g, '');
 
-    if (!customerEmail || !cardholderName || cleanedCardNumber.length < 12 || !expiry || !cvv) {
-      return res.status(400).json({ error: 'Email and complete card details are required' });
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Enter a valid email address' });
+    }
+
+    if (!nameOnCard) {
+      return res.status(400).json({ error: 'Cardholder name is required' });
+    }
+
+    if (cleanedCardNumber.length !== 16) {
+      return res.status(400).json({ error: 'Card number must contain exactly 16 digits' });
+    }
+
+    if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry)) {
+      return res.status(400).json({ error: 'Expiry must use MM/YY format' });
+    }
+
+    if (!/^\d{3,4}$/.test(cardCvv)) {
+      return res.status(400).json({ error: 'CVV must be 3 or 4 digits' });
     }
 
     const order = await transaction(async (client) => {
@@ -190,9 +214,9 @@ cartRouter.post('/:sessionId/checkout', async (req, res, next) => {
         [
           cartPayload.id,
           req.user.id,
-          customerEmail,
+          email,
           cartPayload.totalCents,
-          cardholderName,
+          nameOnCard,
           cleanedCardNumber.slice(-4)
         ]
       );

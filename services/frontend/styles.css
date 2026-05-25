@@ -403,11 +403,31 @@ a {
   display: grid;
 }
 
+.auth-page.single-auth {
+  grid-template-columns: minmax(280px, 520px);
+  justify-content: center;
+}
+
 .auth-card,
 .summary-card,
 .success-card {
   border: 1px solid var(--line);
   padding: 24px;
+}
+
+.auth-switch {
+  color: var(--muted);
+  font-weight: 700;
+  margin: 18px 0 0;
+}
+
+.auth-switch button {
+  background: transparent;
+  border: 0;
+  color: var(--ink);
+  font-weight: 900;
+  padding: 0;
+  text-decoration: underline;
 }
 
 .stack-form {
