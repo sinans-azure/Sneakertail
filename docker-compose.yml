@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sneakertail
+      POSTGRES_USER: sneakertail
+      POSTGRES_PASSWORD: sneakertail_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sneakertail -d sneakertail"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  catalog-service:
+    build:
+      context: .
+      dockerfile: services/catalog-service/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      DATABASE_URL: postgres://sneakertail:sneakertail_dev_password@postgres:5432/sneakertail
+      DB_SCHEMA: catalog
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4001:4001"
+
+  cart-order-service:
+    build:
+      context: .
+      dockerfile: services/cart-order-service/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 4002
+      DATABASE_URL: postgres://sneakertail:sneakertail_dev_password@postgres:5432/sneakertail
+      DB_SCHEMA: orders
+      CATALOG_SERVICE_URL: http://catalog-service:4001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+    ports:
+      - "4002:4002"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: services/frontend/Dockerfile
+      args:
+        VITE_CATALOG_API_URL: http://localhost:4001
+        VITE_CART_API_URL: http://localhost:4002
+    depends_on:
+      - catalog-service
+      - cart-order-service
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres-data:
