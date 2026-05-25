@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { authRouter } from './auth.js';
 import { cartRouter } from './cart.js';
 import { ensureSchema, pool, query } from './db.js';
 
@@ -23,6 +24,7 @@ app.get('/health', async (_req, res, next) => {
   }
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api/cart', cartRouter);
 
 app.use((error, _req, res, _next) => {

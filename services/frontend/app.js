@@ -1,18 +1,11 @@
 (function () {
   const config = window.SNEAKERTAIL_CONFIG || {};
-  const catalogApis = [
-    config.catalogApi || '/catalog-api',
-    config.fallbackCatalogApi || 'http://localhost:4001'
-  ].filter(Boolean);
-  const cartApis = [
-    config.cartApi || '/cart-api',
-    config.fallbackCartApi || 'http://localhost:4002'
-  ].filter(Boolean);
+  const catalogApis = [config.catalogApi || '/catalog-api', config.fallbackCatalogApi || 'http://localhost:4001'];
+  const cartApis = [config.cartApi || '/cart-api', config.fallbackCartApi || 'http://localhost:4002'];
 
   const fallbackProducts = [
     {
       id: 'air-stride-neo',
-      slug: 'air-stride-neo',
       name: 'Air Stride Neo',
       brand: 'Nike',
       category: 'Running',
@@ -24,7 +17,6 @@
     },
     {
       id: 'court-legacy-pro',
-      slug: 'court-legacy-pro',
       name: 'Court Legacy Pro',
       brand: 'Adidas',
       category: 'Lifestyle',
@@ -36,7 +28,6 @@
     },
     {
       id: 'retro-high-77',
-      slug: 'retro-high-77',
       name: 'Retro High 77',
       brand: 'Converse',
       category: 'High Tops',
@@ -54,48 +45,45 @@
     query: '',
     cart: { items: [], totalCents: 0 },
     featuredIndex: 0,
-    featuredTimer: null,
-    sessionId: getSessionId()
+    token: localStorage.getItem('sneakertail-token') || '',
+    user: JSON.parse(localStorage.getItem('sneakertail-user') || 'null')
   };
 
   const elements = {
+    views: document.querySelectorAll('.view'),
+    notice: document.getElementById('notice'),
+    homeButton: document.getElementById('homeButton'),
+    authNavButton: document.getElementById('authNavButton'),
+    heroLoginButton: document.getElementById('heroLoginButton'),
+    cartNavButton: document.getElementById('cartNavButton'),
+    userLabel: document.getElementById('userLabel'),
+    cartCount: document.getElementById('cartCount'),
+    searchInput: document.getElementById('searchInput'),
+    clearFiltersButton: document.getElementById('clearFiltersButton'),
     featuredTrack: document.getElementById('featuredTrack'),
     previousFeatured: document.getElementById('previousFeatured'),
     nextFeatured: document.getElementById('nextFeatured'),
     categoryRail: document.getElementById('categoryRail'),
     productGrid: document.getElementById('productGrid'),
     catalogTitle: document.getElementById('catalogTitle'),
-    notice: document.getElementById('notice'),
-    searchInput: document.getElementById('searchInput'),
-    clearFiltersButton: document.getElementById('clearFiltersButton'),
-    cartCount: document.getElementById('cartCount'),
-    cartDrawer: document.getElementById('cartDrawer'),
+    loginForm: document.getElementById('loginForm'),
+    registerForm: document.getElementById('registerForm'),
     cartItems: document.getElementById('cartItems'),
     cartTotal: document.getElementById('cartTotal'),
-    scrim: document.getElementById('scrim'),
-    openCartButton: document.getElementById('openCartButton'),
-    closeCartButton: document.getElementById('closeCartButton'),
-    heroCartButton: document.getElementById('heroCartButton'),
+    checkoutItems: document.getElementById('checkoutItems'),
+    checkoutTotal: document.getElementById('checkoutTotal'),
+    continueShoppingButton: document.getElementById('continueShoppingButton'),
+    goCheckoutButton: document.getElementById('goCheckoutButton'),
+    backToCartButton: document.getElementById('backToCartButton'),
     checkoutForm: document.getElementById('checkoutForm'),
-    checkoutButton: document.getElementById('checkoutButton'),
-    customerEmail: document.getElementById('customerEmail')
+    customerEmail: document.getElementById('customerEmail'),
+    cardNumber: document.getElementById('cardNumber'),
+    successMessage: document.getElementById('successMessage'),
+    successShopButton: document.getElementById('successShopButton')
   };
 
-  function getSessionId() {
-    const stored = localStorage.getItem('sneakertail-session');
-    if (stored) return stored;
-    const next = globalThis.crypto?.randomUUID
-      ? globalThis.crypto.randomUUID()
-      : `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    localStorage.setItem('sneakertail-session', next);
-    return next;
-  }
-
   function money(cents) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format((cents || 0) / 100);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((cents || 0) / 100);
   }
 
   function escapeHtml(value) {
@@ -107,20 +95,19 @@
       .replaceAll("'", '&#039;');
   }
 
-  function setNotice(message) {
+  function setNotice(message, type = 'info') {
     elements.notice.textContent = message || '';
+    elements.notice.dataset.type = type;
   }
 
   function joinUrl(baseUrl, path) {
     return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
   }
 
-  async function request(url, options) {
+  async function request(url, options = {}) {
     const response = await fetch(url, options);
     const contentType = response.headers.get('content-type') || '';
-    const payload = contentType.includes('application/json')
-      ? await response.json()
-      : null;
+    const payload = contentType.includes('application/json') ? await response.json() : null;
 
     if (!response.ok) {
       throw new Error(payload?.error || `Request failed with ${response.status}`);
@@ -133,7 +120,7 @@
     return payload;
   }
 
-  async function requestFrom(baseUrls, path, options) {
+  async function requestFrom(baseUrls, path, options = {}) {
     const errors = [];
 
     for (const baseUrl of baseUrls) {
@@ -147,28 +134,88 @@
     throw new Error(errors[errors.length - 1] || 'API request failed');
   }
 
+  function authHeaders() {
+    return state.token ? { Authorization: `Bearer ${state.token}` } : {};
+  }
+
+  function jsonOptions(body, includeAuth = false) {
+    return {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(includeAuth ? authHeaders() : {})
+      },
+      body: JSON.stringify(body)
+    };
+  }
+
+  function showView(viewId) {
+    elements.views.forEach((view) => view.classList.toggle('active', view.id === viewId));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function saveAuth(data) {
+    state.token = data.token;
+    state.user = data.user;
+    localStorage.setItem('sneakertail-token', state.token);
+    localStorage.setItem('sneakertail-user', JSON.stringify(state.user));
+    renderAuth();
+  }
+
+  function logout() {
+    state.token = '';
+    state.user = null;
+    state.cart = { items: [], totalCents: 0 };
+    localStorage.removeItem('sneakertail-token');
+    localStorage.removeItem('sneakertail-user');
+    renderAuth();
+    renderCart();
+    setNotice('Logged out.');
+    showView('storeView');
+  }
+
+  function renderAuth() {
+    elements.userLabel.textContent = state.user ? state.user.name : 'Guest';
+    elements.authNavButton.textContent = state.user ? 'Logout' : 'Login';
+    elements.heroLoginButton.textContent = state.user ? 'View cart' : 'Login to buy';
+    if (state.user && !elements.customerEmail.value) {
+      elements.customerEmail.value = state.user.email;
+    }
+  }
+
   async function loadProducts() {
     try {
       const payload = await requestFrom(catalogApis, '/api/products');
       state.products = Array.isArray(payload.data) ? payload.data : fallbackProducts;
       setNotice('');
     } catch (error) {
-      setNotice('Using demo catalog until the API is reachable.');
+      state.products = fallbackProducts;
+      setNotice('Using demo catalog until the Catalog API is reachable.', 'warn');
     }
 
-    render();
+    renderStore();
   }
 
   async function loadCart() {
+    if (!state.token) {
+      state.cart = { items: [], totalCents: 0 };
+      renderCart();
+      return;
+    }
+
     try {
-      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}`);
+      const payload = await requestFrom(cartApis, '/api/cart/current', { headers: authHeaders() });
       state.cart = payload.data || { items: [], totalCents: 0 };
       setNotice('');
     } catch (error) {
-      setNotice('Cart service is warming up.');
+      setNotice(error.message, 'warn');
     }
 
     renderCart();
+  }
+
+  function categories() {
+    return ['All', ...new Set(state.products.map((product) => product.category))];
   }
 
   function featuredProducts() {
@@ -178,165 +225,179 @@
 
   function visibleProducts() {
     return state.products.filter((product) => {
-      const categoryMatch = state.selectedCategory === 'All' || product.category === state.selectedCategory;
-      const queryMatch = !state.query
-        || product.name.toLowerCase().includes(state.query)
-        || product.brand.toLowerCase().includes(state.query)
-        || product.category.toLowerCase().includes(state.query);
-
-      return categoryMatch && queryMatch;
+      const q = state.query;
+      const matchesCategory = state.selectedCategory === 'All' || product.category === state.selectedCategory;
+      const matchesQuery = !q
+        || product.name.toLowerCase().includes(q)
+        || product.brand.toLowerCase().includes(q)
+        || product.category.toLowerCase().includes(q);
+      return matchesCategory && matchesQuery;
     });
   }
 
   function renderFeatured() {
     const featured = featuredProducts();
     state.featuredIndex = Math.min(state.featuredIndex, Math.max(featured.length - 1, 0));
-    elements.featuredTrack.innerHTML = featured
-      .map((product) => `
-        <article class="featured-slide">
-          <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" />
-          <div class="featured-caption">
-            <p>${escapeHtml(product.brand)}</p>
-            <h2>${escapeHtml(product.name)}</h2>
-            <span>${money(product.priceCents)}</span>
-          </div>
-        </article>
-      `)
-      .join('');
-    updateFeaturedPosition();
-  }
-
-  function updateFeaturedPosition() {
+    elements.featuredTrack.innerHTML = featured.map((product) => `
+      <article class="featured-slide">
+        <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" />
+        <div>
+          <span>${escapeHtml(product.brand)}</span>
+          <strong>${escapeHtml(product.name)}</strong>
+          <small>${money(product.priceCents)}</small>
+        </div>
+      </article>
+    `).join('');
     elements.featuredTrack.style.transform = `translateY(-${state.featuredIndex * 100}%)`;
   }
 
   function moveFeatured(direction) {
-    const featured = featuredProducts();
-    if (!featured.length) return;
-    state.featuredIndex = (state.featuredIndex + direction + featured.length) % featured.length;
-    updateFeaturedPosition();
-  }
-
-  function startFeaturedTimer() {
-    window.clearInterval(state.featuredTimer);
-    state.featuredTimer = window.setInterval(() => moveFeatured(1), 4200);
+    const total = featuredProducts().length;
+    if (!total) return;
+    state.featuredIndex = (state.featuredIndex + direction + total) % total;
+    renderFeatured();
   }
 
   function renderCategories() {
-    const categories = ['All', ...new Set(state.products.map((product) => product.category))];
-    elements.categoryRail.innerHTML = categories
-      .map((category) => `
-        <button class="category-chip ${category === state.selectedCategory ? 'active' : ''}" data-category="${escapeHtml(category)}">
-          ${escapeHtml(category)}
-        </button>
-      `)
-      .join('');
+    elements.categoryRail.innerHTML = categories().map((category) => `
+      <button class="category-chip ${category === state.selectedCategory ? 'active' : ''}" type="button" data-category="${escapeHtml(category)}">
+        ${escapeHtml(category)}
+      </button>
+    `).join('');
   }
 
   function renderProducts() {
     const products = visibleProducts();
-    elements.catalogTitle.textContent = state.selectedCategory === 'All'
-      ? 'All Shoes'
-      : `${state.selectedCategory} Shoes`;
+    elements.catalogTitle.textContent = state.selectedCategory === 'All' ? 'All Shoes' : `${state.selectedCategory} Shoes`;
 
     if (!products.length) {
-      elements.productGrid.innerHTML = '<p class="empty-cart">No sneakers match that search.</p>';
+      elements.productGrid.innerHTML = '<p class="empty-state">No sneakers match your filters.</p>';
       return;
     }
 
-    elements.productGrid.innerHTML = products
-      .map((product) => `
-        <article class="product-card">
-          <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" />
-          <div class="product-meta">
-            <span class="product-kicker">${product.stock ? 'Available now' : 'Sold out'}</span>
-            <h3>${escapeHtml(product.name)}</h3>
-            <p>${escapeHtml(product.brand)} ${escapeHtml(product.category)} Shoes</p>
-            <p>${escapeHtml(product.description)}</p>
-            <div class="product-price-row">
-              <strong>${money(product.priceCents)}</strong>
-              <button data-add-product="${escapeHtml(product.id)}" ${product.stock ? '' : 'disabled'}>Add to Bag</button>
-            </div>
+    elements.productGrid.innerHTML = products.map((product) => `
+      <article class="product-card">
+        <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" />
+        <div class="product-body">
+          <span>${escapeHtml(product.brand)} / ${escapeHtml(product.category)}</span>
+          <h3>${escapeHtml(product.name)}</h3>
+          <p>${escapeHtml(product.description)}</p>
+          <div class="product-actions">
+            <strong>${money(product.priceCents)}</strong>
+            <button class="primary-button small" type="button" data-add-product="${escapeHtml(product.id)}" ${product.stock ? '' : 'disabled'}>
+              ${state.user ? 'Add to cart' : 'Login to add'}
+            </button>
           </div>
-        </article>
-      `)
-      .join('');
+        </div>
+      </article>
+    `).join('');
   }
 
   function renderCart() {
     const items = state.cart.items || [];
-    elements.cartCount.textContent = items.reduce((sum, item) => sum + item.quantity, 0);
+    const count = items.reduce((sum, item) => sum + item.quantity, 0);
+    elements.cartCount.textContent = count;
     elements.cartTotal.textContent = money(state.cart.totalCents);
-    elements.checkoutButton.disabled = items.length === 0;
+    elements.checkoutTotal.textContent = money(state.cart.totalCents);
+    elements.goCheckoutButton.disabled = !items.length;
 
     if (!items.length) {
-      elements.cartItems.innerHTML = '<p class="empty-cart">Your bag is empty.</p>';
+      elements.cartItems.innerHTML = '<p class="empty-state">Your cart is empty.</p>';
+      elements.checkoutItems.innerHTML = '<p class="empty-state">No items yet.</p>';
       return;
     }
 
-    elements.cartItems.innerHTML = items
-      .map((item) => `
-        <article class="cart-line">
-          <div class="cart-line-info">
-            <strong>${escapeHtml(item.productName)}</strong>
-            <span>${money(item.unitPriceCents)}</span>
-          </div>
-          <div class="quantity-controls">
-            <button data-quantity="${item.quantity - 1}" data-item-id="${escapeHtml(item.id)}" aria-label="Decrease quantity">-</button>
-            <strong>${item.quantity}</strong>
-            <button data-quantity="${item.quantity + 1}" data-item-id="${escapeHtml(item.id)}" aria-label="Increase quantity">+</button>
-          </div>
-        </article>
-      `)
-      .join('');
+    elements.cartItems.innerHTML = items.map((item) => `
+      <article class="cart-row">
+        <div>
+          <h3>${escapeHtml(item.productName)}</h3>
+          <p>${money(item.unitPriceCents)} each</p>
+        </div>
+        <div class="quantity-controls">
+          <button type="button" data-item-id="${escapeHtml(item.id)}" data-quantity="${item.quantity - 1}">-</button>
+          <strong>${item.quantity}</strong>
+          <button type="button" data-item-id="${escapeHtml(item.id)}" data-quantity="${item.quantity + 1}">+</button>
+        </div>
+        <strong>${money(item.unitPriceCents * item.quantity)}</strong>
+      </article>
+    `).join('');
+
+    elements.checkoutItems.innerHTML = items.map((item) => `
+      <div class="summary-row">
+        <span>${escapeHtml(item.productName)} x ${item.quantity}</span>
+        <strong>${money(item.unitPriceCents * item.quantity)}</strong>
+      </div>
+    `).join('');
   }
 
-  function render() {
+  function renderStore() {
     renderFeatured();
     renderCategories();
     renderProducts();
-    renderCart();
-    startFeaturedTimer();
-  }
-
-  function openCart() {
-    elements.cartDrawer.classList.add('open');
-    elements.scrim.classList.add('open');
-    elements.cartDrawer.setAttribute('aria-hidden', 'false');
-  }
-
-  function closeCart() {
-    elements.cartDrawer.classList.remove('open');
-    elements.scrim.classList.remove('open');
-    elements.cartDrawer.setAttribute('aria-hidden', 'true');
   }
 
   async function addToCart(productId) {
+    if (!state.token) {
+      setNotice('Please log in or register before adding items to cart.', 'warn');
+      showView('authView');
+      return;
+    }
+
     try {
-      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity: 1 })
-      });
+      const payload = await requestFrom(cartApis, '/api/cart/current/items', jsonOptions({ productId, quantity: 1 }, true));
       state.cart = payload.data;
       renderCart();
-      openCart();
+      setNotice('Added to cart.');
+      showView('cartView');
     } catch (error) {
-      setNotice(error.message);
+      setNotice(error.message, 'warn');
     }
   }
 
   async function updateQuantity(itemId, quantity) {
     try {
-      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}/items/${itemId}`, {
+      const payload = await requestFrom(cartApis, `/api/cart/current/items/${itemId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ quantity })
       });
       state.cart = payload.data;
       renderCart();
     } catch (error) {
-      setNotice(error.message);
+      setNotice(error.message, 'warn');
+    }
+  }
+
+  async function login(event) {
+    event.preventDefault();
+    try {
+      const payload = await requestFrom(cartApis, '/api/auth/login', jsonOptions({
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+      }));
+      saveAuth(payload.data);
+      await loadCart();
+      setNotice(`Welcome back, ${payload.data.user.name}.`);
+      showView('storeView');
+    } catch (error) {
+      setNotice(error.message, 'warn');
+    }
+  }
+
+  async function register(event) {
+    event.preventDefault();
+    try {
+      const payload = await requestFrom(cartApis, '/api/auth/register', jsonOptions({
+        name: document.getElementById('registerName').value,
+        email: document.getElementById('registerEmail').value,
+        password: document.getElementById('registerPassword').value
+      }));
+      saveAuth(payload.data);
+      await loadCart();
+      setNotice(`Account created. Welcome, ${payload.data.user.name}.`);
+      showView('storeView');
+    } catch (error) {
+      setNotice(error.message, 'warn');
     }
   }
 
@@ -344,26 +405,41 @@
     event.preventDefault();
 
     try {
-      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}/checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerEmail: elements.customerEmail.value })
-      });
-      setNotice(`Order ${payload.data.id.slice(0, 8)} accepted.`);
-      await loadCart();
+      const payload = await requestFrom(cartApis, '/api/cart/current/checkout', jsonOptions({
+        customerEmail: elements.customerEmail.value,
+        cardholderName: document.getElementById('cardholderName').value,
+        cardNumber: elements.cardNumber.value,
+        expiry: document.getElementById('cardExpiry').value,
+        cvv: document.getElementById('cardCvv').value
+      }, true));
+
+      const order = payload.data;
+      elements.successMessage.textContent = `Order ${order.id.slice(0, 8)} accepted for ${order.customerEmail}. Paid with card ending ${order.cardLast4}.`;
+      state.cart = { items: [], totalCents: 0 };
+      renderCart();
+      showView('successView');
     } catch (error) {
-      setNotice(error.message);
+      setNotice(error.message, 'warn');
     }
   }
 
   function wireEvents() {
+    elements.homeButton.addEventListener('click', () => showView('storeView'));
     elements.previousFeatured.addEventListener('click', () => moveFeatured(-1));
     elements.nextFeatured.addEventListener('click', () => moveFeatured(1));
-    elements.openCartButton.addEventListener('click', openCart);
-    elements.heroCartButton.addEventListener('click', openCart);
-    elements.closeCartButton.addEventListener('click', closeCart);
-    elements.scrim.addEventListener('click', closeCart);
-    elements.checkoutForm.addEventListener('submit', checkout);
+    elements.heroLoginButton.addEventListener('click', () => showView(state.user ? 'cartView' : 'authView'));
+    elements.cartNavButton.addEventListener('click', () => showView(state.user ? 'cartView' : 'authView'));
+    elements.continueShoppingButton.addEventListener('click', () => showView('storeView'));
+    elements.backToCartButton.addEventListener('click', () => showView('cartView'));
+    elements.successShopButton.addEventListener('click', () => showView('storeView'));
+    elements.goCheckoutButton.addEventListener('click', () => showView(state.cart.items?.length ? 'checkoutView' : 'cartView'));
+    elements.authNavButton.addEventListener('click', () => {
+      if (state.user) {
+        logout();
+      } else {
+        showView('authView');
+      }
+    });
 
     elements.searchInput.addEventListener('input', (event) => {
       state.query = event.target.value.trim().toLowerCase();
@@ -398,10 +474,22 @@
       updateQuantity(button.dataset.itemId, Number(button.dataset.quantity));
     });
 
+    elements.loginForm.addEventListener('submit', login);
+    elements.registerForm.addEventListener('submit', register);
+    elements.checkoutForm.addEventListener('submit', checkout);
+
+    elements.cardNumber.addEventListener('input', (event) => {
+      event.target.value = event.target.value
+        .replace(/\D/g, '')
+        .replace(/(.{4})/g, '$1 ')
+        .trim()
+        .slice(0, 19);
+    });
   }
 
   wireEvents();
-  render();
+  renderAuth();
+  renderStore();
   loadProducts();
   loadCart();
 })();

@@ -78,14 +78,35 @@ Use this list after Docker Compose or Azure deployment:
 - Search for a product or brand and confirm the product grid filters.
 - Click a category chip and confirm the product grid filters.
 - Click `Clear filters` and confirm all products return.
-- Click `Add to Bag` on a product and confirm the cart opens with that item.
-- Click `+` and `-` in the cart and confirm quantity and total update.
+- Click `Login to add` while logged out and confirm the login/register page opens.
+- Register a new user with name, email, and password.
+- Confirm the header changes from `Guest` to the registered user name.
+- Click `Add to cart` on a product and confirm the cart page opens with that item.
+- Click `+` and `-` in the cart page and confirm quantity and total update.
 - Reduce an item to `0` and confirm it is removed from the cart.
-- Enter an email and click `Checkout`; confirm an order accepted message appears.
+- Click `Checkout` and confirm the checkout page opens.
+- Enter email, cardholder name, card number, expiry, and CVV.
+- Click `Place order` and confirm the order success page appears with an order number and card last 4.
 - After checkout, add another item and confirm a fresh cart is created.
+- Click `Logout` and confirm adding to cart requires login again.
 - Visit `http://<host>:4001/health` and confirm the Catalog API returns `ok`.
 - Visit `http://<host>:4002/health` and confirm the Cart & Order API returns `ok`.
 - Visit `http://<host>:4001/api/products` and confirm JSON product data is returned.
+
+## Current Features
+
+- Static HTML/CSS/JS storefront with no React, Vite, or Tailwind runtime.
+- Catalog search by product, brand, and category.
+- Category chips with active filter state.
+- Featured sneaker vertical carousel.
+- User registration and login.
+- Add-to-cart gated by login.
+- User-owned cart stored in PostgreSQL.
+- Cart page with quantity increase, decrease, and remove-at-zero behavior.
+- Checkout page with required demo card fields.
+- Order creation with card last 4 only; full card number is not stored.
+- Success page after checkout.
+- Runtime frontend API configuration for Docker Compose and Azure VM deployment.
 
 ## Database Boundary Strategy
 

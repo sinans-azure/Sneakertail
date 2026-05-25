@@ -1,8 +1,15 @@
 import { Router } from 'express';
+import { requireAuth } from './auth.js';
 import { getProduct } from './catalogClient.js';
 import { query, transaction } from './db.js';
 
 export const cartRouter = Router();
+
+cartRouter.use(requireAuth);
+
+function cartSessionId(req) {
+  return `user:${req.user.id}`;
+}
 
 async function getOrCreateCart(sessionId, client = { query }) {
   const existing = await client.query(
@@ -52,7 +59,7 @@ async function getCartPayload(sessionId, client = { query }) {
 
 cartRouter.get('/:sessionId', async (req, res, next) => {
   try {
-    res.json({ data: await getCartPayload(req.params.sessionId) });
+    res.json({ data: await getCartPayload(cartSessionId(req)) });
   } catch (error) {
     next(error);
   }
@@ -73,7 +80,7 @@ cartRouter.post('/:sessionId/items', async (req, res, next) => {
     }
 
     const payload = await transaction(async (client) => {
-      const cart = await getOrCreateCart(req.params.sessionId, client);
+      const cart = await getOrCreateCart(cartSessionId(req), client);
       const existingItem = await client.query(
         'SELECT quantity FROM orders.cart_items WHERE cart_id = $1 AND product_id = $2 LIMIT 1',
         [cart.id, product.id]
@@ -95,7 +102,7 @@ cartRouter.post('/:sessionId/items', async (req, res, next) => {
            updated_at = now()`,
         [cart.id, product.id, product.name, product.priceCents, quantity]
       );
-      return getCartPayload(req.params.sessionId, client);
+      return getCartPayload(cartSessionId(req), client);
     });
 
     return res.status(201).json({ data: payload });
@@ -113,7 +120,7 @@ cartRouter.patch('/:sessionId/items/:itemId', async (req, res, next) => {
     }
 
     const payload = await transaction(async (client) => {
-      const cart = await getOrCreateCart(req.params.sessionId, client);
+      const cart = await getOrCreateCart(cartSessionId(req), client);
 
       if (quantity === 0) {
         await client.query('DELETE FROM orders.cart_items WHERE id = $1 AND cart_id = $2', [
@@ -148,7 +155,7 @@ cartRouter.patch('/:sessionId/items/:itemId', async (req, res, next) => {
         );
       }
 
-      return getCartPayload(req.params.sessionId, client);
+      return getCartPayload(cartSessionId(req), client);
     });
 
     return res.json({ data: payload });
@@ -159,14 +166,15 @@ cartRouter.patch('/:sessionId/items/:itemId', async (req, res, next) => {
 
 cartRouter.post('/:sessionId/checkout', async (req, res, next) => {
   try {
-    const { customerEmail } = req.body;
+    const { customerEmail, cardholderName, cardNumber, expiry, cvv } = req.body;
+    const cleanedCardNumber = String(cardNumber || '').replace(/\D/g, '');
 
-    if (!customerEmail) {
-      return res.status(400).json({ error: 'customerEmail is required' });
+    if (!customerEmail || !cardholderName || cleanedCardNumber.length < 12 || !expiry || !cvv) {
+      return res.status(400).json({ error: 'Email and complete card details are required' });
     }
 
     const order = await transaction(async (client) => {
-      const cartPayload = await getCartPayload(req.params.sessionId, client);
+      const cartPayload = await getCartPayload(cartSessionId(req), client);
 
       if (!cartPayload.items.length) {
         const error = new Error('Cart is empty');
@@ -175,10 +183,18 @@ cartRouter.post('/:sessionId/checkout', async (req, res, next) => {
       }
 
       const created = await client.query(
-        `INSERT INTO orders.orders (cart_id, customer_email, total_cents)
-         VALUES ($1, $2, $3)
-         RETURNING id, cart_id, customer_email, total_cents, status, created_at`,
-        [cartPayload.id, customerEmail, cartPayload.totalCents]
+        `INSERT INTO orders.orders
+          (cart_id, user_id, customer_email, total_cents, cardholder_name, card_last4)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id, cart_id, user_id, customer_email, total_cents, card_last4, status, created_at`,
+        [
+          cartPayload.id,
+          req.user.id,
+          customerEmail,
+          cartPayload.totalCents,
+          cardholderName,
+          cleanedCardNumber.slice(-4)
+        ]
       );
       await client.query(
         "UPDATE orders.carts SET status = 'checked_out', updated_at = now() WHERE id = $1",
@@ -192,8 +208,10 @@ cartRouter.post('/:sessionId/checkout', async (req, res, next) => {
       data: {
         id: order.id,
         cartId: order.cart_id,
+        userId: order.user_id,
         customerEmail: order.customer_email,
         totalCents: order.total_cents,
+        cardLast4: order.card_last4,
         status: order.status,
         createdAt: order.created_at
       }

@@ -8,98 +8,142 @@
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/" aria-label="sneakertail.online home">
+      <button class="brand button-reset" id="homeButton" type="button" aria-label="Open store home">
         <span class="brand-mark">ST</span>
         <span>sneakertail.online</span>
-      </a>
-      <nav class="desktop-nav" aria-label="Primary">
-        <a href="#new">New</a>
-        <a href="#catalog">Men</a>
-        <a href="#catalog">Women</a>
-        <a href="#catalog">Kids</a>
-        <a href="#catalog">Sale</a>
+      </button>
+
+      <label class="search-bar">
+        <span>Search</span>
+        <input id="searchInput" type="search" placeholder="Search shoes, brands, categories" />
+      </label>
+
+      <nav class="header-actions" aria-label="Account and cart">
+        <span class="user-pill" id="userLabel">Guest</span>
+        <button class="nav-button" id="authNavButton" type="button">Login</button>
+        <button class="nav-button" id="cartNavButton" type="button">Cart <strong id="cartCount">0</strong></button>
       </nav>
-      <div class="header-actions">
-        <label class="search-pill">
-          <span aria-hidden="true">Search</span>
-          <input id="searchInput" type="search" placeholder="Search" />
-        </label>
-        <button class="icon-button" id="openCartButton" aria-label="Open cart">
-          <span aria-hidden="true">Bag</span>
-          <strong id="cartCount">0</strong>
-        </button>
-      </div>
     </header>
 
     <main>
-      <section class="promo-strip" aria-label="Store promotion">
-        <p>Free delivery on orders over $150</p>
-        <a href="#catalog">Shop sneakers</a>
-      </section>
+      <p class="notice" id="notice" role="status"></p>
 
-      <section class="hero" id="new">
-        <div class="hero-media">
-          <div class="vertical-carousel" aria-label="Featured sneakers">
-            <div class="vertical-track" id="featuredTrack"></div>
-          </div>
-          <div class="carousel-controls">
-            <button id="previousFeatured" aria-label="Previous featured sneaker">&uarr;</button>
-            <button id="nextFeatured" aria-label="Next featured sneaker">&darr;</button>
-          </div>
-        </div>
-        <div class="hero-copy">
-          <p>Just in</p>
-          <h1>Step into the next rotation.</h1>
-          <span>Street-ready pairs, clean checkout, cloud-native services behind the counter.</span>
-          <div class="hero-actions">
-            <a class="primary-link" href="#catalog">Shop</a>
-            <button class="secondary-link" id="heroCartButton">View Bag</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="category-section" aria-label="Shop by category">
-        <div class="section-title">
-          <h2>Shop by Sport</h2>
-          <p id="notice" role="status"></p>
-        </div>
-        <div class="category-rail" id="categoryRail"></div>
-      </section>
-
-      <section class="catalog" id="catalog">
-        <div class="catalog-heading">
+      <section class="view active" id="storeView">
+        <section class="hero">
           <div>
-            <p>Sneakers</p>
-            <h2 id="catalogTitle">All Shoes</h2>
+            <p class="eyebrow">New season</p>
+            <h1>Simple sneaker shopping for cloud deployments.</h1>
+            <p class="hero-text">Browse the catalog, log in, add shoes to cart, and check out with demo card details.</p>
+            <div class="button-row">
+              <a class="primary-button" href="#catalog">Shop shoes</a>
+              <button class="secondary-button" id="heroLoginButton" type="button">Login to buy</button>
+            </div>
           </div>
-          <button class="filter-button" id="clearFiltersButton">Clear filters</button>
+          <div class="hero-card">
+            <div class="vertical-carousel">
+              <div class="vertical-track" id="featuredTrack"></div>
+            </div>
+            <div class="carousel-controls">
+              <button id="previousFeatured" type="button" aria-label="Previous featured sneaker">Up</button>
+              <button id="nextFeatured" type="button" aria-label="Next featured sneaker">Down</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="catalog-section" id="catalog">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Catalog</p>
+              <h2 id="catalogTitle">All Shoes</h2>
+            </div>
+            <button class="secondary-button" id="clearFiltersButton" type="button">Clear filters</button>
+          </div>
+          <div class="category-rail" id="categoryRail" aria-label="Product categories"></div>
+          <div class="product-grid" id="productGrid"></div>
+        </section>
+      </section>
+
+      <section class="view auth-page" id="authView">
+        <div class="auth-card">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h2>Login</h2>
+          </div>
+          <form id="loginForm" class="stack-form">
+            <label>Email<input id="loginEmail" type="email" autocomplete="email" required /></label>
+            <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
+            <button class="primary-button" type="submit">Login</button>
+          </form>
         </div>
-        <div class="product-grid" id="productGrid"></div>
+
+        <div class="auth-card">
+          <div>
+            <p class="eyebrow">New customer</p>
+            <h2>Register</h2>
+          </div>
+          <form id="registerForm" class="stack-form">
+            <label>Name<input id="registerName" type="text" autocomplete="name" required /></label>
+            <label>Email<input id="registerEmail" type="email" autocomplete="email" required /></label>
+            <label>Password<input id="registerPassword" type="password" autocomplete="new-password" minlength="6" required /></label>
+            <button class="primary-button" type="submit">Create account</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="view page-panel" id="cartView">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Shopping cart</p>
+            <h2>Your bag</h2>
+          </div>
+          <button class="secondary-button" id="continueShoppingButton" type="button">Continue shopping</button>
+        </div>
+        <div class="cart-page-grid">
+          <div class="cart-list" id="cartItems"></div>
+          <aside class="summary-card">
+            <h3>Summary</h3>
+            <div class="summary-row"><span>Subtotal</span><strong id="cartTotal">$0.00</strong></div>
+            <button class="primary-button full-width" id="goCheckoutButton" type="button">Checkout</button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view page-panel" id="checkoutView">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Checkout</p>
+            <h2>Payment details</h2>
+          </div>
+          <button class="secondary-button" id="backToCartButton" type="button">Back to cart</button>
+        </div>
+        <form class="checkout-grid" id="checkoutForm">
+          <div class="stack-form checkout-form">
+            <label>Email<input id="customerEmail" type="email" required /></label>
+            <label>Cardholder name<input id="cardholderName" type="text" autocomplete="cc-name" required /></label>
+            <label>Card number<input id="cardNumber" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4242 4242 4242 4242" required /></label>
+            <div class="form-row">
+              <label>Expiry<input id="cardExpiry" type="text" autocomplete="cc-exp" placeholder="12/30" required /></label>
+              <label>CVV<input id="cardCvv" type="text" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required /></label>
+            </div>
+            <button class="primary-button" id="placeOrderButton" type="submit">Place order</button>
+          </div>
+          <aside class="summary-card">
+            <h3>Order summary</h3>
+            <div id="checkoutItems" class="checkout-items"></div>
+            <div class="summary-row"><span>Total</span><strong id="checkoutTotal">$0.00</strong></div>
+          </aside>
+        </form>
+      </section>
+
+      <section class="view success-page" id="successView">
+        <div class="success-card">
+          <p class="eyebrow">Order placed</p>
+          <h2>Thanks, your sneakers are reserved.</h2>
+          <p id="successMessage"></p>
+          <button class="primary-button" id="successShopButton" type="button">Shop more</button>
+        </div>
       </section>
     </main>
-
-    <button class="scrim" id="scrim" aria-label="Close cart"></button>
-    <aside class="cart-drawer" id="cartDrawer" aria-labelledby="cartTitle" aria-hidden="true">
-      <div class="cart-header">
-        <div>
-          <p>Bag</p>
-          <h2 id="cartTitle">Your items</h2>
-        </div>
-        <button id="closeCartButton">Close</button>
-      </div>
-      <div class="cart-items" id="cartItems"></div>
-      <form class="checkout-panel" id="checkoutForm">
-        <label>
-          Email for checkout
-          <input id="customerEmail" type="email" value="buyer@sneakertail.online" required />
-        </label>
-        <div class="total-row">
-          <span>Total</span>
-          <strong id="cartTotal">$0.00</strong>
-        </div>
-        <button type="submit" id="checkoutButton">Checkout</button>
-      </form>
-    </aside>
 
     <script src="/config.js"></script>
     <script src="/app.js" defer></script>
