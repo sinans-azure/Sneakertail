@@ -46,7 +46,8 @@
     cart: { items: [], totalCents: 0 },
     featuredIndex: 0,
     token: localStorage.getItem('sneakertail-token') || '',
-    user: JSON.parse(localStorage.getItem('sneakertail-user') || 'null')
+    user: JSON.parse(localStorage.getItem('sneakertail-user') || 'null'),
+    noticeTimer: null
   };
 
   const elements = {
@@ -98,8 +99,17 @@
   }
 
   function setNotice(message, type = 'info') {
+    window.clearTimeout(state.noticeTimer);
     elements.notice.textContent = message || '';
     elements.notice.dataset.type = type;
+    elements.notice.classList.toggle('show', Boolean(message));
+
+    if (message) {
+      state.noticeTimer = window.setTimeout(() => {
+        elements.notice.classList.remove('show');
+        elements.notice.textContent = '';
+      }, 3600);
+    }
   }
 
   function joinUrl(baseUrl, path) {
