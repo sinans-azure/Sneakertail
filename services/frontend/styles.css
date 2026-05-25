@@ -174,13 +174,13 @@ a {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-  min-height: calc(100svh - 118px);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.72fr);
+  min-height: 560px;
 }
 
 .hero-media {
   background: var(--soft);
-  min-height: 560px;
+  min-height: 520px;
   overflow: hidden;
   position: relative;
 }
@@ -254,12 +254,12 @@ a {
 
 .hero-copy {
   align-self: center;
-  padding: clamp(32px, 5vw, 72px);
+  padding: clamp(30px, 4vw, 58px);
 }
 
 .hero-copy h1 {
-  font-size: clamp(3.2rem, 8vw, 7.4rem);
-  line-height: 0.9;
+  font-size: clamp(2.8rem, 6vw, 5.4rem);
+  line-height: 0.94;
   margin: 12px 0 20px;
 }
 
@@ -303,7 +303,7 @@ a {
 
 .category-section,
 .catalog {
-  padding: clamp(26px, 4vw, 54px);
+  padding: clamp(24px, 4vw, 48px);
 }
 
 .section-title,
@@ -372,13 +372,13 @@ a {
 
 .product-grid {
   display: grid;
-  gap: 26px 16px;
+  gap: 34px 18px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .product-card {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .product-card img {
@@ -391,7 +391,7 @@ a {
 
 .product-meta {
   display: grid;
-  gap: 5px;
+  gap: 6px;
 }
 
 .product-kicker {
@@ -415,7 +415,7 @@ a {
   display: flex;
   gap: 12px;
   justify-content: space-between;
-  margin-top: 6px;
+  margin-top: 10px;
 }
 
 .product-card button {

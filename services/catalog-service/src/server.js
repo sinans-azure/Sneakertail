@@ -27,8 +27,9 @@ app.use('/api/products', productsRouter);
 
 app.use((error, _req, res, _next) => {
   console.error(error);
-  res.status(error.status || 500).json({
-    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
+  const status = error.status || 500;
+  res.status(status).json({
+    error: status < 500 ? error.message : 'Internal server error'
   });
 });
 

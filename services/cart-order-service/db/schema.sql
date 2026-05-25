@@ -4,11 +4,17 @@ CREATE SCHEMA IF NOT EXISTS orders;
 
 CREATE TABLE IF NOT EXISTS orders.carts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id TEXT UNIQUE NOT NULL,
+  session_id TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE orders.carts DROP CONSTRAINT IF EXISTS carts_session_id_key;
+
+CREATE UNIQUE INDEX IF NOT EXISTS carts_active_session_idx
+  ON orders.carts (session_id)
+  WHERE status = 'active';
 
 CREATE TABLE IF NOT EXISTS orders.cart_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

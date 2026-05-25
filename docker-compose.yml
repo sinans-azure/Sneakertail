@@ -45,7 +45,7 @@ services:
       postgres:
         condition: service_healthy
       catalog-service:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "4002:4002"
 
@@ -53,9 +53,14 @@ services:
     build:
       context: .
       dockerfile: services/frontend/Dockerfile
+    environment:
+      CATALOG_API_URL: /catalog-api
+      CART_API_URL: /cart-api
     depends_on:
-      - catalog-service
-      - cart-order-service
+      catalog-service:
+        condition: service_healthy
+      cart-order-service:
+        condition: service_healthy
     ports:
       - "8080:80"
 

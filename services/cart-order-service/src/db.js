@@ -5,7 +5,8 @@ const { Pool } = pg;
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: Number(process.env.DB_POOL_SIZE || 10),
-  idleTimeoutMillis: 30000
+  idleTimeoutMillis: 30000,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
 export async function query(text, params = []) {
@@ -33,11 +34,17 @@ export async function ensureSchema() {
   await query(`
     CREATE TABLE IF NOT EXISTS orders.carts (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      session_id TEXT UNIQUE NOT NULL,
+      session_id TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'active',
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
+  `);
+  await query('ALTER TABLE orders.carts DROP CONSTRAINT IF EXISTS carts_session_id_key');
+  await query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS carts_active_session_idx
+      ON orders.carts (session_id)
+      WHERE status = 'active'
   `);
   await query(`
     CREATE TABLE IF NOT EXISTS orders.cart_items (

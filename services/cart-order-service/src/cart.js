@@ -72,12 +72,20 @@ cartRouter.post('/:sessionId/items', async (req, res, next) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    if (product.stock < quantity) {
-      return res.status(409).json({ error: 'Insufficient inventory' });
-    }
-
     const payload = await transaction(async (client) => {
       const cart = await getOrCreateCart(req.params.sessionId, client);
+      const existingItem = await client.query(
+        'SELECT quantity FROM orders.cart_items WHERE cart_id = $1 AND product_id = $2 LIMIT 1',
+        [cart.id, product.id]
+      );
+      const existingQuantity = existingItem.rows[0]?.quantity || 0;
+
+      if (existingQuantity + quantity > product.stock) {
+        const error = new Error('Insufficient inventory');
+        error.status = 409;
+        throw error;
+      }
+
       await client.query(
         `INSERT INTO orders.cart_items (cart_id, product_id, product_name, unit_price_cents, quantity)
          VALUES ($1, $2, $3, $4, $5)
@@ -113,6 +121,25 @@ cartRouter.patch('/:sessionId/items/:itemId', async (req, res, next) => {
           cart.id
         ]);
       } else {
+        const existing = await client.query(
+          'SELECT product_id FROM orders.cart_items WHERE id = $1 AND cart_id = $2 LIMIT 1',
+          [req.params.itemId, cart.id]
+        );
+
+        if (!existing.rowCount) {
+          const error = new Error('Cart item not found');
+          error.status = 404;
+          throw error;
+        }
+
+        const product = await getProduct(existing.rows[0].product_id);
+
+        if (!product || quantity > product.stock) {
+          const error = new Error('Insufficient inventory');
+          error.status = 409;
+          throw error;
+        }
+
         await client.query(
           `UPDATE orders.cart_items
            SET quantity = $1, updated_at = now()

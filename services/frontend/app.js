@@ -1,7 +1,13 @@
 (function () {
   const config = window.SNEAKERTAIL_CONFIG || {};
-  const catalogApi = config.catalogApi || 'http://localhost:4001';
-  const cartApi = config.cartApi || 'http://localhost:4002';
+  const catalogApis = [
+    config.catalogApi || '/catalog-api',
+    config.fallbackCatalogApi || 'http://localhost:4001'
+  ].filter(Boolean);
+  const cartApis = [
+    config.cartApi || '/cart-api',
+    config.fallbackCartApi || 'http://localhost:4002'
+  ].filter(Boolean);
 
   const fallbackProducts = [
     {
@@ -105,21 +111,46 @@
     elements.notice.textContent = message || '';
   }
 
+  function joinUrl(baseUrl, path) {
+    return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+  }
+
   async function request(url, options) {
     const response = await fetch(url, options);
-    const payload = await response.json().catch(() => ({}));
+    const contentType = response.headers.get('content-type') || '';
+    const payload = contentType.includes('application/json')
+      ? await response.json()
+      : null;
 
     if (!response.ok) {
-      throw new Error(payload.error || `Request failed with ${response.status}`);
+      throw new Error(payload?.error || `Request failed with ${response.status}`);
+    }
+
+    if (!payload || !Object.prototype.hasOwnProperty.call(payload, 'data')) {
+      throw new Error('API response was not valid JSON data');
     }
 
     return payload;
   }
 
+  async function requestFrom(baseUrls, path, options) {
+    const errors = [];
+
+    for (const baseUrl of baseUrls) {
+      try {
+        return await request(joinUrl(baseUrl, path), options);
+      } catch (error) {
+        errors.push(error.message);
+      }
+    }
+
+    throw new Error(errors[errors.length - 1] || 'API request failed');
+  }
+
   async function loadProducts() {
     try {
-      const payload = await request(`${catalogApi}/api/products`);
-      state.products = payload.data;
+      const payload = await requestFrom(catalogApis, '/api/products');
+      state.products = Array.isArray(payload.data) ? payload.data : fallbackProducts;
       setNotice('');
     } catch (error) {
       setNotice('Using demo catalog until the API is reachable.');
@@ -130,8 +161,8 @@
 
   async function loadCart() {
     try {
-      const payload = await request(`${cartApi}/api/cart/${state.sessionId}`);
-      state.cart = payload.data;
+      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}`);
+      state.cart = payload.data || { items: [], totalCents: 0 };
       setNotice('');
     } catch (error) {
       setNotice('Cart service is warming up.');
@@ -282,7 +313,7 @@
 
   async function addToCart(productId) {
     try {
-      const payload = await request(`${cartApi}/api/cart/${state.sessionId}/items`, {
+      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId, quantity: 1 })
@@ -297,7 +328,7 @@
 
   async function updateQuantity(itemId, quantity) {
     try {
-      const payload = await request(`${cartApi}/api/cart/${state.sessionId}/items/${itemId}`, {
+      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}/items/${itemId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quantity })
@@ -313,7 +344,7 @@
     event.preventDefault();
 
     try {
-      const payload = await request(`${cartApi}/api/cart/${state.sessionId}/checkout`, {
+      const payload = await requestFrom(cartApis, `/api/cart/${state.sessionId}/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customerEmail: elements.customerEmail.value })
@@ -367,25 +398,6 @@
       updateQuantity(button.dataset.itemId, Number(button.dataset.quantity));
     });
 
-    let isDragging = false;
-    let startX = 0;
-    let scrollLeft = 0;
-
-    elements.categoryRail.addEventListener('pointerdown', (event) => {
-      isDragging = true;
-      startX = event.clientX;
-      scrollLeft = elements.categoryRail.scrollLeft;
-      elements.categoryRail.setPointerCapture(event.pointerId);
-    });
-
-    elements.categoryRail.addEventListener('pointermove', (event) => {
-      if (!isDragging) return;
-      elements.categoryRail.scrollLeft = scrollLeft - (event.clientX - startX);
-    });
-
-    elements.categoryRail.addEventListener('pointerup', () => {
-      isDragging = false;
-    });
   }
 
   wireEvents();
