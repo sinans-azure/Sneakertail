@@ -1,0 +1,44 @@
+#cloud-config
+package_update: true
+packages:
+  - git
+  - nginx
+
+runcmd:
+  - rm -rf /opt/Sneakertail /var/www/sneakertail
+  - git clone --branch ${repository_branch} ${repository_url} /opt/Sneakertail
+  - mkdir -p /var/www/sneakertail
+  - cp /opt/Sneakertail/services/frontend/index.html /var/www/sneakertail/index.html
+  - cp /opt/Sneakertail/services/frontend/styles.css /var/www/sneakertail/styles.css
+  - cp /opt/Sneakertail/services/frontend/app.js /var/www/sneakertail/app.js
+  - |
+    cat > /var/www/sneakertail/config.js <<'EOF'
+    window.SNEAKERTAIL_CONFIG = {
+      catalogApi: '${catalog_api_url}',
+      cartApi: '${cart_api_url}',
+      fallbackCatalogApi: 'http://localhost:4001',
+      fallbackCartApi: 'http://localhost:4002'
+    };
+    EOF
+  - |
+    cat > /etc/nginx/sites-available/sneakertail <<'EOF'
+    server {
+      listen 80 default_server;
+      server_name _;
+      root /var/www/sneakertail;
+      index index.html;
+
+      location / {
+        try_files $uri $uri/ /index.html;
+      }
+
+      location = /config.js {
+        try_files /config.js =404;
+      }
+    }
+    EOF
+  - rm -f /etc/nginx/sites-enabled/default
+  - ln -sf /etc/nginx/sites-available/sneakertail /etc/nginx/sites-enabled/sneakertail
+  - nginx -t
+  - systemctl enable --now nginx
+  - systemctl reload nginx

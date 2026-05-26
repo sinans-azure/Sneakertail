@@ -29,7 +29,6 @@ export async function transaction(work) {
 }
 
 export async function ensureSchema() {
-  await query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
   await query('CREATE SCHEMA IF NOT EXISTS orders');
   await query(`
     CREATE TABLE IF NOT EXISTS orders.carts (

@@ -1,0 +1,53 @@
+name_prefix         = "sneakertail"
+resource_group_name = "RG-1"
+location            = "Central India"
+
+admin_username = "azureuser"
+admin_password = "Muhammed@2003"
+
+repository_url    = "https://github.com/sinans-azure/Sneakertail.git"
+repository_branch = "main"
+
+postgres_admin_login    = "pgadminuser"
+postgres_admin_password = "Muhammed@2003"
+postgres_database_name  = "sneakertail"
+postgres_sku_name       = "B_Standard_B1ms"
+postgres_storage_mb     = 32768
+
+backend_vm_size  = "Standard_D2als_v6"
+frontend_vm_size = "Standard_D2als_v6"
+
+frontend_instance_count          = 2
+frontend_autoscale_min_instances = 2
+frontend_autoscale_max_instances = 5
+frontend_probe_host              = "127.0.0.1"
+
+# Path-based routing works by default on one Application Gateway listener.
+enable_host_routing = false
+
+frontend_host_name = "www.sneakertail.online"
+catalog_host_name  = "catalog.sneakertail.online"
+cart_host_name     = "cart.sneakertail.online"
+
+address_space = {
+  hub_vnet              = "10.0.0.0/16"
+  hub_appgw_subnet      = "10.0.1.0/24"
+  hub_management_subnet = "10.0.2.0/24"
+  app_vnet              = "10.1.0.0/16"
+  frontend_subnet       = "10.1.1.0/24"
+  backend_subnet        = "10.1.2.0/24"
+  data_vnet             = "10.2.0.0/16"
+  postgres_subnet       = "10.2.1.0/24"
+}
+
+tags = {
+  app         = "sneakertail"
+  environment = "dev"
+  managed_by  = "terraform"
+}
+
+# Turn this on when you want to demonstrate host-name based routing too.
+# enable_host_routing = true
+# frontend_host_name  = "www.sneakertail.online"
+# catalog_host_name   = "catalog.sneakertail.online"
+# cart_host_name      = "cart.sneakertail.online"

@@ -26,6 +26,8 @@ app.get('/health', async (_req, res, next) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/cart', cartRouter);
+app.use('/cart-api/api/auth', authRouter);
+app.use('/cart-api/api/cart', cartRouter);
 
 app.use((error, _req, res, _next) => {
   console.error(error);

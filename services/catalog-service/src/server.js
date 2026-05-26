@@ -24,6 +24,7 @@ app.get('/health', async (_req, res, next) => {
 });
 
 app.use('/api/products', productsRouter);
+app.use('/catalog-api/api/products', productsRouter);
 
 app.use((error, _req, res, _next) => {
   console.error(error);

@@ -1,0 +1,35 @@
+#cloud-config
+package_update: true
+packages:
+  - curl
+  - git
+
+runcmd:
+  - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+  - apt-get install -y nodejs
+  - rm -rf /opt/Sneakertail
+  - git clone --branch ${repository_branch} ${repository_url} /opt/Sneakertail
+  - sed -i "/CREATE EXTENSION IF NOT EXISTS pgcrypto/d" /opt/Sneakertail/services/cart-order-service/src/db.js
+  - cd /opt/Sneakertail && npm ci --omit=dev --workspace services/cart-order-service
+  - |
+    cat > /etc/systemd/system/sneakertail-cart.service <<'EOF'
+    [Unit]
+    Description=Sneakertail cart and order service
+    After=network-online.target
+
+    [Service]
+    WorkingDirectory=/opt/Sneakertail
+    Environment=NODE_ENV=production
+    Environment=PORT=4002
+    Environment=DB_SSL=true
+    Environment=DATABASE_URL=${database_url}
+    Environment=CATALOG_SERVICE_URL=${catalog_service_url}
+    ExecStart=/usr/bin/node services/cart-order-service/src/server.js
+    Restart=always
+    RestartSec=5
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+  - systemctl daemon-reload
+  - systemctl enable --now sneakertail-cart.service

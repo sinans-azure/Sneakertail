@@ -54,6 +54,8 @@ The frontend uses same-origin proxy paths by default:
 
 For direct non-Docker frontend development, edit `services/frontend/config.js` and set those values to `http://localhost:4001` and `http://localhost:4002`.
 
+Terraform for the Azure demo environment is available in `terraform/`. See `terraform/README.md` for deployment commands and module details.
+
 ## Azure Architecture Plan
 
 This project is suitable for a VM-based Azure demonstration with Application Gateway, WAF, VM Scale Sets, VNet peering, and Azure Database for PostgreSQL Flexible Server.
