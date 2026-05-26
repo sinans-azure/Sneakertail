@@ -231,30 +231,30 @@ runcmd:
             <span>docs.sneakertail.online</span>
           </a>
           <div class="header-actions">
-            <span class="pill">Private Docs VM</span>
-            <span class="pill">Application Gateway</span>
+            <span class="pill">Drop Guide</span>
+            <span class="pill">Fit Notes</span>
           </div>
         </header>
 
         <main>
           <section class="hero">
             <div>
-              <p class="eyebrow">Host routing demo</p>
-              <h1>Sneaker notes served from a private docs subnet.</h1>
-              <p class="hero-text">This page reaches the Docs VM through the Application Gateway listener for docs.sneakertail.online. The VM has no public IP; traffic arrives over hub-to-docs VNet peering.</p>
+              <p class="eyebrow">Sneaker field notes</p>
+              <h1>Know the pair before you wear the pair.</h1>
+              <p class="hero-text">Quick reads on comfort, materials, sizing, and styling so every checkout feels less like a gamble and more like a clean pickup.</p>
             </div>
             <div class="hero-media">
-              <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80" alt="Red sneaker product photo" />
+              <img src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=1400&q=80" alt="Sneakers lined up on display" />
             </div>
           </section>
 
           <section class="catalog-section">
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Docs catalog</p>
-                <h2>Featured sneaker details</h2>
+                <p class="eyebrow">Editor picks</p>
+                <h2>Three pairs worth a closer look</h2>
               </div>
-              <span class="tag">docs.sneakertail.online</span>
+              <span class="tag">Fresh notes</span>
             </div>
 
             <div class="product-grid">
@@ -263,10 +263,10 @@ runcmd:
                 <div class="product-body">
                   <span>Adidas / Lifestyle</span>
                   <h3>Court Legacy Pro</h3>
-                  <p>Premium leather upper, padded collar, and a clean court profile for daily wear.</p>
+                  <p>A low-profile court pair with a smooth leather upper, soft collar padding, and the kind of clean shape that works with denim, cargos, or track pants.</p>
                   <div class="product-actions">
                     <strong>$129.00</strong>
-                    <span class="tag">18 in stock</span>
+                    <span class="tag">True to size</span>
                   </div>
                 </div>
               </article>
@@ -276,10 +276,10 @@ runcmd:
                 <div class="product-body">
                   <span>Converse / High Tops</span>
                   <h3>Retro High 77</h3>
-                  <p>Vintage high-top shape with cushioned street comfort and durable canvas texture.</p>
+                  <p>Old-school ankle coverage, textured canvas, and a flexible sole. Best for laid-back fits where the sneaker should look broken-in from day one.</p>
                   <div class="product-actions">
                     <strong>$99.00</strong>
-                    <span class="tag">15 in stock</span>
+                    <span class="tag">Size up half</span>
                   </div>
                 </div>
               </article>
@@ -289,10 +289,10 @@ runcmd:
                 <div class="product-body">
                   <span>New Balance / Running</span>
                   <h3>Pulse Knit 90</h3>
-                  <p>Breathable knit, stable heel cup, and a responsive sole tuned for long city days.</p>
+                  <p>Breathable knit, a locked-in heel, and responsive foam for people who end up walking way more than they planned.</p>
                   <div class="product-actions">
                     <strong>$119.00</strong>
-                    <span class="tag">21 in stock</span>
+                    <span class="tag">All-day comfort</span>
                   </div>
                 </div>
               </article>
