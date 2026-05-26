@@ -5,4 +5,6 @@ variable "appgw_subnet_id" { type = string }
 variable "frontend_probe_host" { type = string }
 variable "catalog_private_ip" { type = string }
 variable "cart_private_ip" { type = string }
+variable "docs_private_ip" { type = string }
+variable "docs_host_name" { type = string }
 variable "tags" { type = map(string) }

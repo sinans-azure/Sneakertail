@@ -21,6 +21,7 @@ frontend_instance_count          = 2
 frontend_autoscale_min_instances = 2
 frontend_autoscale_max_instances = 5
 frontend_probe_host              = "127.0.0.1"
+docs_host_name                   = "docs.sneakertail.online"
 enable_host_routing              = false
 frontend_host_name               = "www.sneakertail.online"
 catalog_host_name                = "catalog.sneakertail.online"

@@ -108,6 +108,11 @@ variable "frontend_probe_host" {
   default     = "127.0.0.1"
 }
 
+variable "docs_host_name" {
+  type    = string
+  default = "docs.sneakertail.online"
+}
+
 variable "address_space" {
   type = object({
     hub_vnet           = string

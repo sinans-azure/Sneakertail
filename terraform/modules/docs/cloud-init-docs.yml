@@ -6,126 +6,300 @@ runcmd:
   - mkdir -p /var/www/docs
   - |
     cat > /var/www/docs/index.html <<'EOF'
-    <!DOCTYPE html>
+    <!doctype html>
     <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Sneakertail Docs - Hostname Based Routing Demo</title>
-      <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; color: #111; }
-        header { background: #111; color: white; padding: 24px; text-align: center; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        h1 { font-size: 2.5rem; margin-bottom: 12px; }
-        .subtitle { color: #707072; font-size: 1.1rem; margin-bottom: 40px; }
-        .info-box { background: white; border-radius: 8px; padding: 24px; margin-bottom: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .info-box h2 { font-size: 1.5rem; margin-bottom: 12px; color: #111; }
-        .info-box p { line-height: 1.6; margin-bottom: 12px; color: #707072; }
-        .sneaker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px; }
-        .sneaker-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
-        .sneaker-card:hover { transform: translateY(-4px); }
-        .sneaker-image { width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; }
-        .sneaker-info { padding: 16px; }
-        .sneaker-name { font-weight: 800; font-size: 1.1rem; margin-bottom: 6px; }
-        .sneaker-brand { color: #707072; font-size: 0.9rem; margin-bottom: 8px; }
-        .sneaker-price { font-weight: 800; color: #111; font-size: 1.2rem; }
-        .routing-demo { background: #fff3cd; border-left: 4px solid #ffc107; padding: 16px; border-radius: 4px; margin-bottom: 24px; }
-        .routing-demo p { color: #856404; margin: 0; }
-        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-      </style>
-    </head>
-    <body>
-      <header>
-        <h1>🎯 Sneakertail Docs</h1>
-        <p>Hostname-Based Routing Demonstration</p>
-      </header>
-      
-      <div class="container">
-        <div class="routing-demo">
-          <p><strong>📍 Location:</strong> This page is served from <code>docs.sneakertail.online</code></p>
-          <p><strong>🔀 Routing Type:</strong> Hostname-based routing (future enhancement)</p>
-          <p><strong>💡 Purpose:</strong> This subdomain demonstrates how hostname-based routing can be used for documentation, admin panels, or service-specific UIs</p>
-        </div>
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>docs.sneakertail.online</title>
+        <style>
+          :root {
+            --ink: #111;
+            --muted: #707072;
+            --paper: #fff;
+            --soft: #f5f5f5;
+            --line: #e5e5e5;
+            font-family: Arial, "Helvetica Neue", sans-serif;
+            color: var(--ink);
+            background: var(--paper);
+          }
 
-        <div class="info-box">
-          <h2>What is Hostname-Based Routing?</h2>
-          <p>Hostname-based routing allows you to route requests to different backend services based on the hostname in the HTTP request. For example:</p>
-          <ul style="margin-left: 20px; line-height: 1.8;">
-            <li><code>www.sneakertail.online</code> → Frontend Store</li>
-            <li><code>catalog.sneakertail.online</code> → Catalog Service API</li>
-            <li><code>cart.sneakertail.online</code> → Cart Service API</li>
-            <li><code>docs.sneakertail.online</code> → Documentation (this page)</li>
-          </ul>
-        </div>
+          * { box-sizing: border-box; }
+          body { margin: 0; min-width: 320px; }
+          a { color: inherit; text-decoration: none; }
 
-        <div class="info-box">
-          <h2>Featured Sneakers Catalog</h2>
-          <div class="sneaker-grid">
-            <div class="sneaker-card">
-              <div class="sneaker-image">👟</div>
-              <div class="sneaker-info">
-                <div class="sneaker-name">Air Stride Neo</div>
-                <div class="sneaker-brand">Nike</div>
-                <div class="sneaker-price">$149.00</div>
-              </div>
-            </div>
-            <div class="sneaker-card">
-              <div class="sneaker-image">👟</div>
-              <div class="sneaker-info">
-                <div class="sneaker-name">Court Legacy Pro</div>
-                <div class="sneaker-brand">Adidas</div>
-                <div class="sneaker-price">$129.00</div>
-              </div>
-            </div>
-            <div class="sneaker-card">
-              <div class="sneaker-image">👟</div>
-              <div class="sneaker-info">
-                <div class="sneaker-name">Retro High 77</div>
-                <div class="sneaker-brand">Converse</div>
-                <div class="sneaker-price">$99.00</div>
-              </div>
-            </div>
-            <div class="sneaker-card">
-              <div class="sneaker-image">👟</div>
-              <div class="sneaker-info">
-                <div class="sneaker-name">Pulse Knit 90</div>
-                <div class="sneaker-brand">New Balance</div>
-                <div class="sneaker-price">$119.00</div>
-              </div>
-            </div>
-            <div class="sneaker-card">
-              <div class="sneaker-image">👟</div>
-              <div class="sneaker-info">
-                <div class="sneaker-name">Foam Runner Lite</div>
-                <div class="sneaker-brand">Yeezy</div>
-                <div class="sneaker-price">$89.00</div>
-              </div>
-            </div>
+          .site-header {
+            align-items: center;
+            background: rgba(255, 255, 255, 0.96);
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            gap: 18px;
+            justify-content: space-between;
+            padding: 16px clamp(18px, 4vw, 54px);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+          }
+
+          .brand,
+          .header-actions,
+          .product-actions {
+            align-items: center;
+            display: flex;
+          }
+
+          .brand {
+            gap: 12px;
+            font-weight: 800;
+          }
+
+          .brand-mark {
+            align-items: center;
+            background: var(--ink);
+            color: var(--paper);
+            display: inline-flex;
+            height: 38px;
+            justify-content: center;
+            width: 38px;
+          }
+
+          .header-actions {
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 800;
+            gap: 10px;
+          }
+
+          .pill {
+            background: var(--soft);
+            border-radius: 999px;
+            padding: 12px 18px;
+          }
+
+          .hero {
+            display: grid;
+            gap: 28px;
+            grid-template-columns: minmax(0, 0.9fr) minmax(340px, 1.1fr);
+            padding: 32px clamp(18px, 4vw, 54px) 42px;
+          }
+
+          .eyebrow {
+            color: var(--muted);
+            font-size: 0.82rem;
+            font-weight: 900;
+            letter-spacing: 0;
+            margin: 0;
+            text-transform: uppercase;
+          }
+
+          h1 {
+            font-size: clamp(2.5rem, 6vw, 5.5rem);
+            line-height: 0.96;
+            margin: 12px 0 18px;
+            max-width: 720px;
+          }
+
+          .hero-text {
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            max-width: 560px;
+          }
+
+          .hero-media {
+            background: var(--soft);
+            min-height: 460px;
+            overflow: hidden;
+          }
+
+          .hero-media img {
+            height: 100%;
+            min-height: 460px;
+            object-fit: cover;
+            width: 100%;
+          }
+
+          .catalog-section {
+            padding: 28px clamp(18px, 4vw, 54px) 64px;
+          }
+
+          .section-heading {
+            align-items: end;
+            display: flex;
+            gap: 18px;
+            justify-content: space-between;
+            margin-bottom: 24px;
+          }
+
+          .section-heading h2 {
+            font-size: clamp(1.8rem, 4vw, 3.2rem);
+            margin: 6px 0 0;
+          }
+
+          .product-grid {
+            display: grid;
+            gap: 30px 18px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+
+          .product-card {
+            display: grid;
+            gap: 12px;
+          }
+
+          .product-card img {
+            aspect-ratio: 1;
+            background: var(--soft);
+            object-fit: cover;
+            width: 100%;
+          }
+
+          .product-body {
+            display: grid;
+            gap: 7px;
+          }
+
+          .product-body span,
+          .product-body p {
+            color: var(--muted);
+            margin: 0;
+          }
+
+          .product-body h3 {
+            margin: 0;
+          }
+
+          .product-actions {
+            gap: 14px;
+            justify-content: space-between;
+            margin-top: 8px;
+          }
+
+          .tag {
+            align-items: center;
+            background: var(--ink);
+            border-radius: 999px;
+            color: var(--paper);
+            display: inline-flex;
+            font-size: 0.82rem;
+            font-weight: 900;
+            min-height: 34px;
+            padding: 0 14px;
+            white-space: nowrap;
+          }
+
+          @media (max-width: 980px) {
+            .hero,
+            .product-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .hero-media,
+            .hero-media img {
+              min-height: 360px;
+            }
+          }
+
+          @media (max-width: 620px) {
+            .site-header {
+              align-items: flex-start;
+              flex-direction: column;
+              padding: 14px 16px;
+            }
+
+            .header-actions {
+              flex-wrap: wrap;
+            }
+
+            .hero,
+            .catalog-section {
+              padding-left: 16px;
+              padding-right: 16px;
+            }
+
+            .section-heading {
+              align-items: flex-start;
+              flex-direction: column;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <header class="site-header">
+          <a class="brand" href="/">
+            <span class="brand-mark">ST</span>
+            <span>docs.sneakertail.online</span>
+          </a>
+          <div class="header-actions">
+            <span class="pill">Private Docs VM</span>
+            <span class="pill">Application Gateway</span>
           </div>
-        </div>
+        </header>
 
-        <div class="info-box">
-          <h2>Architecture Overview</h2>
-          <p><strong>Current Setup:</strong> Path-based routing using Application Gateway</p>
-          <p><strong>Future Enhancement:</strong> Add hostname-based routing for:</p>
-          <ul style="margin-left: 20px; line-height: 1.8;">
-            <li>Service-specific APIs on dedicated subdomains</li>
-            <li>Admin/Documentation panels on internal subdomains</li>
-            <li>Multi-tenant support with tenant-specific subdomains</li>
-            <li>A/B testing with canary deployment subdomains</li>
-          </ul>
-        </div>
+        <main>
+          <section class="hero">
+            <div>
+              <p class="eyebrow">Host routing demo</p>
+              <h1>Sneaker notes served from a private docs subnet.</h1>
+              <p class="hero-text">This page reaches the Docs VM through the Application Gateway listener for docs.sneakertail.online. The VM has no public IP; traffic arrives over hub-to-docs VNet peering.</p>
+            </div>
+            <div class="hero-media">
+              <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=80" alt="Red sneaker product photo" />
+            </div>
+          </section>
 
-        <div class="info-box">
-          <h2>Network Configuration</h2>
-          <p><strong>VNet:</strong> Docs VNet (10.3.0.0/16)</p>
-          <p><strong>Subnet:</strong> Docs Subnet (10.3.1.0/24)</p>
-          <p><strong>VM:</strong> Single Ubuntu VM running this documentation server</p>
-          <p><strong>Access:</strong> Via public IP address (enable hostname-based routing to use custom domain)</p>
-        </div>
-      </div>
-    </body>
+          <section class="catalog-section">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Docs catalog</p>
+                <h2>Featured sneaker details</h2>
+              </div>
+              <span class="tag">docs.sneakertail.online</span>
+            </div>
+
+            <div class="product-grid">
+              <article class="product-card">
+                <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=80" alt="Court Legacy Pro sneaker" />
+                <div class="product-body">
+                  <span>Adidas / Lifestyle</span>
+                  <h3>Court Legacy Pro</h3>
+                  <p>Premium leather upper, padded collar, and a clean court profile for daily wear.</p>
+                  <div class="product-actions">
+                    <strong>$129.00</strong>
+                    <span class="tag">18 in stock</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=900&q=80" alt="Retro High 77 sneaker" />
+                <div class="product-body">
+                  <span>Converse / High Tops</span>
+                  <h3>Retro High 77</h3>
+                  <p>Vintage high-top shape with cushioned street comfort and durable canvas texture.</p>
+                  <div class="product-actions">
+                    <strong>$99.00</strong>
+                    <span class="tag">15 in stock</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80" alt="Pulse Knit 90 sneaker" />
+                <div class="product-body">
+                  <span>New Balance / Running</span>
+                  <h3>Pulse Knit 90</h3>
+                  <p>Breathable knit, stable heel cup, and a responsive sole tuned for long city days.</p>
+                  <div class="product-actions">
+                    <strong>$119.00</strong>
+                    <span class="tag">21 in stock</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </main>
+      </body>
     </html>
     EOF
   - rm -f /etc/nginx/sites-enabled/default
@@ -136,7 +310,7 @@ runcmd:
       server_name _;
       root /var/www/docs;
       index index.html;
-      
+
       location / {
         try_files \$uri \$uri/ /index.html;
       }

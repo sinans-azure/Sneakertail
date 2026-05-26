@@ -2,12 +2,15 @@ locals {
   frontend_pool_name         = "pool-frontend"
   catalog_pool_name          = "pool-catalog"
   cart_pool_name             = "pool-cart"
+  docs_pool_name             = "pool-docs"
   frontend_http_setting_name = "http-frontend"
   catalog_http_setting_name  = "http-catalog"
   cart_http_setting_name     = "http-cart"
+  docs_http_setting_name     = "http-docs"
   frontend_probe_name        = "probe-frontend"
   catalog_probe_name         = "probe-catalog"
   cart_probe_name            = "probe-cart"
+  docs_probe_name            = "probe-docs"
 }
 
 resource "azurerm_public_ip" "appgw" {
@@ -85,6 +88,11 @@ resource "azurerm_application_gateway" "this" {
     ip_addresses = [var.cart_private_ip]
   }
 
+  backend_address_pool {
+    name         = local.docs_pool_name
+    ip_addresses = [var.docs_private_ip]
+  }
+
   probe {
     name                                      = local.frontend_probe_name
     protocol                                  = "Http"
@@ -111,6 +119,16 @@ resource "azurerm_application_gateway" "this" {
     protocol            = "Http"
     host                = var.cart_private_ip
     path                = "/health"
+    interval            = 30
+    timeout             = 10
+    unhealthy_threshold = 3
+  }
+
+  probe {
+    name                = local.docs_probe_name
+    protocol            = "Http"
+    host                = var.docs_host_name
+    path                = "/"
     interval            = 30
     timeout             = 10
     unhealthy_threshold = 3
@@ -143,11 +161,29 @@ resource "azurerm_application_gateway" "this" {
     probe_name            = local.cart_probe_name
   }
 
+  backend_http_settings {
+    name                  = local.docs_http_setting_name
+    cookie_based_affinity = "Disabled"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 30
+    host_name             = var.docs_host_name
+    probe_name            = local.docs_probe_name
+  }
+
   http_listener {
     name                           = "listener-path-demo"
     frontend_ip_configuration_name = "public-frontend-ip"
     frontend_port_name             = "port-80"
     protocol                       = "Http"
+  }
+
+  http_listener {
+    name                           = "listener-docs-host"
+    frontend_ip_configuration_name = "public-frontend-ip"
+    frontend_port_name             = "port-80"
+    protocol                       = "Http"
+    host_name                      = var.docs_host_name
   }
 
   request_routing_rule {
@@ -156,6 +192,15 @@ resource "azurerm_application_gateway" "this" {
     http_listener_name = "listener-path-demo"
     url_path_map_name  = "pathmap-sneakertail"
     priority           = 100
+  }
+
+  request_routing_rule {
+    name                       = "rule-docs-host"
+    rule_type                  = "Basic"
+    http_listener_name         = "listener-docs-host"
+    backend_address_pool_name  = local.docs_pool_name
+    backend_http_settings_name = local.docs_http_setting_name
+    priority                   = 90
   }
 
   url_path_map {

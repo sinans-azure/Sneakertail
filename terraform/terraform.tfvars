@@ -23,6 +23,7 @@ frontend_instance_count          = 1
 frontend_autoscale_min_instances = 1
 frontend_autoscale_max_instances = 5
 frontend_probe_host              = "127.0.0.1"
+docs_host_name                   = "docs.sneakertail.online"
 
 # Using path-based routing only
 

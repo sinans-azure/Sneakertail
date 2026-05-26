@@ -32,16 +32,11 @@ output "bastion_connection_info" {
   value = "Connect to Bastion: ssh ${var.admin_username}@${module.bastion.bastion_public_ip}"
 }
 
-output "docs_public_ip" {
-  value       = module.docs.docs_public_ip
-  description = "Public IP address of the Docs VM (docs.sneakertail.online)"
-}
-
 output "docs_private_ip" {
   value       = module.docs.docs_private_ip
   description = "Private IP address of the Docs VM"
 }
 
 output "docs_connection_info" {
-  value = "Access Docs UI: http://${module.docs.docs_public_ip} or configure docs.sneakertail.online to point to this IP"
+  value = "Access Docs UI through Application Gateway: http://${var.docs_host_name}"
 }

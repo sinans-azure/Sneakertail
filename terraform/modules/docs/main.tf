@@ -5,37 +5,28 @@ resource "azurerm_network_security_group" "docs" {
   tags                = var.tags
 
   security_rule {
-    name                       = "AllowHttpFromInternet"
+    name                       = "AllowHttpFromApplicationGateway"
     priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
-    source_address_prefix      = "*"
+    source_address_prefix      = var.appgw_subnet_cidr
     destination_address_prefix = "*"
   }
 
   security_rule {
-    name                       = "AllowSSHFromInternet"
+    name                       = "AllowSSHFromBastionSubnet"
     priority                   = 110
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "*"
+    source_address_prefix      = var.bastion_subnet_cidr
     destination_address_prefix = "*"
   }
-}
-
-resource "azurerm_public_ip" "docs" {
-  name                = "PIP-Docs"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  allocation_method   = "Static"
-  sku                 = "Standard"
-  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "docs" {
@@ -48,7 +39,6 @@ resource "azurerm_network_interface" "docs" {
     name                          = "ipconfig"
     subnet_id                     = var.docs_subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.docs.id
   }
 }
 

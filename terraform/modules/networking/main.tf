@@ -110,3 +110,17 @@ resource "azurerm_virtual_network_peering" "data_to_app" {
   virtual_network_name      = azurerm_virtual_network.data.name
   remote_virtual_network_id = azurerm_virtual_network.app.id
 }
+
+resource "azurerm_virtual_network_peering" "hub_to_docs" {
+  name                      = "PEER-5"
+  resource_group_name       = var.resource_group_name
+  virtual_network_name      = azurerm_virtual_network.hub.name
+  remote_virtual_network_id = azurerm_virtual_network.docs.id
+}
+
+resource "azurerm_virtual_network_peering" "docs_to_hub" {
+  name                      = "PEER-6"
+  resource_group_name       = var.resource_group_name
+  virtual_network_name      = azurerm_virtual_network.docs.name
+  remote_virtual_network_id = azurerm_virtual_network.hub.id
+}

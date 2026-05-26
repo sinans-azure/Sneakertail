@@ -59,6 +59,8 @@ module "loadbalancer" {
   frontend_probe_host = var.frontend_probe_host
   catalog_private_ip  = module.compute_backend.catalog_private_ip
   cart_private_ip     = module.compute_backend.cart_private_ip
+  docs_private_ip     = module.docs.docs_private_ip
+  docs_host_name      = var.docs_host_name
   tags                = var.tags
 }
 
@@ -101,6 +103,8 @@ module "docs" {
   resource_group_name = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
   docs_subnet_id      = module.networking.docs_subnet_id
+  appgw_subnet_cidr   = var.address_space.hub_appgw_subnet
+  bastion_subnet_cidr = var.address_space.hub_bastion_subnet
   admin_username      = var.admin_username
   admin_password      = var.admin_password
   repository_url      = var.repository_url
