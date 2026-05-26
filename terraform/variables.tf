@@ -100,30 +100,28 @@ variable "frontend_probe_host" {
 
 variable "address_space" {
   type = object({
-    hub_vnet              = string
-    hub_appgw_subnet      = string
-    hub_bastion_subnet    = string
-    hub_management_subnet = string
-    app_vnet              = string
-    frontend_subnet       = string
-    backend_subnet        = string
-    data_vnet             = string
-    postgres_subnet       = string
-    docs_vnet             = string
-    docs_subnet           = string
+    hub_vnet           = string
+    hub_appgw_subnet   = string
+    hub_bastion_subnet = string
+    app_vnet           = string
+    frontend_subnet    = string
+    backend_subnet     = string
+    data_vnet          = string
+    postgres_subnet    = string
+    docs_vnet          = string
+    docs_subnet        = string
   })
   default = {
-    hub_vnet              = "10.0.0.0/16"
-    hub_appgw_subnet      = "10.0.1.0/24"
-    hub_bastion_subnet    = "10.0.2.0/24"
-    hub_management_subnet = "10.0.3.0/24"
-    app_vnet              = "10.1.0.0/16"
-    frontend_subnet       = "10.1.1.0/24"
-    backend_subnet        = "10.1.2.0/24"
-    data_vnet             = "10.2.0.0/16"
-    postgres_subnet       = "10.2.1.0/24"
-    docs_vnet             = "10.3.0.0/16"
-    docs_subnet           = "10.3.1.0/24"
+    hub_vnet           = "10.0.0.0/16"
+    hub_appgw_subnet   = "10.0.1.0/24"
+    hub_bastion_subnet = "10.0.2.0/24"
+    app_vnet           = "10.1.0.0/16"
+    frontend_subnet    = "10.1.1.0/24"
+    backend_subnet     = "10.1.2.0/24"
+    data_vnet          = "10.2.0.0/16"
+    postgres_subnet    = "10.2.1.0/24"
+    docs_vnet          = "10.3.0.0/16"
+    docs_subnet        = "10.3.1.0/24"
   }
 }
 

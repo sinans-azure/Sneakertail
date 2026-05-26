@@ -44,29 +44,22 @@ resource "azurerm_subnet" "bastion" {
   address_prefixes     = [var.address_space.hub_bastion_subnet]
 }
 
-resource "azurerm_subnet" "management" {
-  name                 = "SNET-3"
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = azurerm_virtual_network.hub.name
-  address_prefixes     = [var.address_space.hub_management_subnet]
-}
-
 resource "azurerm_subnet" "frontend" {
-  name                 = "SNET-4"
+  name                 = "SNET-3"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.app.name
   address_prefixes     = [var.address_space.frontend_subnet]
 }
 
 resource "azurerm_subnet" "backend" {
-  name                 = "SNET-5"
+  name                 = "SNET-4"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.app.name
   address_prefixes     = [var.address_space.backend_subnet]
 }
 
 resource "azurerm_subnet" "postgres" {
-  name                 = "SNET-6"
+  name                 = "SNET-5"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.data.name
   address_prefixes     = [var.address_space.postgres_subnet]
@@ -82,7 +75,7 @@ resource "azurerm_subnet" "postgres" {
 }
 
 resource "azurerm_subnet" "docs" {
-  name                 = "SNET-7"
+  name                 = "SNET-6"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.docs.name
   address_prefixes     = [var.address_space.docs_subnet]
