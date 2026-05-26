@@ -148,7 +148,6 @@ resource "azurerm_application_gateway" "this" {
     frontend_ip_configuration_name = "public-frontend-ip"
     frontend_port_name             = "port-80"
     protocol                       = "Http"
-    host_name                      = var.enable_host_routing ? var.frontend_host_name : null
   }
 
   request_routing_rule {
@@ -176,45 +175,6 @@ resource "azurerm_application_gateway" "this" {
       paths                      = ["/cart-api/*"]
       backend_address_pool_name  = local.cart_pool_name
       backend_http_settings_name = local.cart_http_setting_name
-    }
-  }
-
-  dynamic "http_listener" {
-    for_each = var.enable_host_routing ? {
-      catalog = var.catalog_host_name
-      cart    = var.cart_host_name
-    } : {}
-
-    content {
-      name                           = "listener-${http_listener.key}"
-      frontend_ip_configuration_name = "public-frontend-ip"
-      frontend_port_name             = "port-80"
-      protocol                       = "Http"
-      host_name                      = http_listener.value
-    }
-  }
-
-  dynamic "request_routing_rule" {
-    for_each = var.enable_host_routing ? {
-      catalog = {
-        priority = 200
-        pool     = local.catalog_pool_name
-        setting  = local.catalog_http_setting_name
-      }
-      cart = {
-        priority = 210
-        pool     = local.cart_pool_name
-        setting  = local.cart_http_setting_name
-      }
-    } : {}
-
-    content {
-      name                       = "rule-host-${request_routing_rule.key}"
-      rule_type                  = "Basic"
-      http_listener_name         = "listener-${request_routing_rule.key}"
-      backend_address_pool_name  = request_routing_rule.value.pool
-      backend_http_settings_name = request_routing_rule.value.setting
-      priority                   = request_routing_rule.value.priority
     }
   }
 }

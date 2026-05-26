@@ -7,11 +7,14 @@ variable "address_space" {
   type = object({
     hub_vnet              = string
     hub_appgw_subnet      = string
+    hub_bastion_subnet    = string
     hub_management_subnet = string
     app_vnet              = string
     frontend_subnet       = string
     backend_subnet        = string
     data_vnet             = string
     postgres_subnet       = string
+    docs_vnet             = string
+    docs_subnet           = string
   })
 }

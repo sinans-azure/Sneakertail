@@ -42,9 +42,9 @@ docker compose up --build
 
 Services:
 
-- Frontend: http://localhost:8080
-- Catalog API: http://localhost:4001
-- Cart & Order API: http://localhost:4002
+- Frontend: `http://localhost:8080`
+- Catalog API: `http://localhost:4001`
+- Cart & Order API: `http://localhost:4002`
 - PostgreSQL: localhost:5432
 
 The frontend uses same-origin proxy paths by default:

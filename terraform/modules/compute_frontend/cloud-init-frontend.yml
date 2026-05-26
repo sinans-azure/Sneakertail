@@ -1,18 +1,14 @@
 #cloud-config
 package_update: true
-packages:
-  - git
-  - nginx
-
+packages: [git, nginx]
 runcmd:
-  - rm -rf /opt/Sneakertail /var/www/sneakertail
   - git clone --branch ${repository_branch} ${repository_url} /opt/Sneakertail
   - mkdir -p /var/www/sneakertail
   - cp /opt/Sneakertail/services/frontend/index.html /var/www/sneakertail/index.html
   - cp /opt/Sneakertail/services/frontend/styles.css /var/www/sneakertail/styles.css
   - cp /opt/Sneakertail/services/frontend/app.js /var/www/sneakertail/app.js
   - |
-    cat > /var/www/sneakertail/config.js <<'EOF'
+    cat > /var/www/sneakertail/config.js <<EOF
     window.SNEAKERTAIL_CONFIG = {
       catalogApi: '${catalog_api_url}',
       cartApi: '${cart_api_url}',
@@ -21,7 +17,7 @@ runcmd:
     };
     EOF
   - |
-    cat > /etc/nginx/sites-available/sneakertail <<'EOF'
+    cat > /etc/nginx/sites-available/sneakertail <<EOF
     server {
       listen 80 default_server;
       server_name _;
@@ -29,7 +25,7 @@ runcmd:
       index index.html;
 
       location / {
-        try_files $uri $uri/ /index.html;
+        try_files \$uri \$uri/ /index.html;
       }
 
       location = /config.js {

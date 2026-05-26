@@ -22,22 +22,20 @@ frontend_autoscale_min_instances = 2
 frontend_autoscale_max_instances = 5
 frontend_probe_host              = "127.0.0.1"
 
-# Path-based routing works by default on one Application Gateway listener.
-enable_host_routing = false
-
-frontend_host_name = "www.sneakertail.online"
-catalog_host_name  = "catalog.sneakertail.online"
-cart_host_name     = "cart.sneakertail.online"
+# Using path-based routing only
 
 address_space = {
   hub_vnet              = "10.0.0.0/16"
   hub_appgw_subnet      = "10.0.1.0/24"
-  hub_management_subnet = "10.0.2.0/24"
+  hub_bastion_subnet    = "10.0.2.0/24"
+  hub_management_subnet = "10.0.3.0/24"
   app_vnet              = "10.1.0.0/16"
   frontend_subnet       = "10.1.1.0/24"
   backend_subnet        = "10.1.2.0/24"
   data_vnet             = "10.2.0.0/16"
   postgres_subnet       = "10.2.1.0/24"
+  docs_vnet             = "10.3.0.0/16"
+  docs_subnet           = "10.3.1.0/24"
 }
 
 tags = {

@@ -22,6 +22,14 @@ resource "azurerm_virtual_network" "data" {
   tags                = var.tags
 }
 
+resource "azurerm_virtual_network" "docs" {
+  name                = "VNET-4"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  address_space       = [var.address_space.docs_vnet]
+  tags                = var.tags
+}
+
 resource "azurerm_subnet" "appgw" {
   name                 = "SNET-1"
   resource_group_name  = var.resource_group_name
@@ -29,29 +37,36 @@ resource "azurerm_subnet" "appgw" {
   address_prefixes     = [var.address_space.hub_appgw_subnet]
 }
 
-resource "azurerm_subnet" "management" {
+resource "azurerm_subnet" "bastion" {
   name                 = "SNET-2"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.hub.name
+  address_prefixes     = [var.address_space.hub_bastion_subnet]
+}
+
+resource "azurerm_subnet" "management" {
+  name                 = "SNET-3"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.hub.name
   address_prefixes     = [var.address_space.hub_management_subnet]
 }
 
 resource "azurerm_subnet" "frontend" {
-  name                 = "SNET-3"
+  name                 = "SNET-4"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.app.name
   address_prefixes     = [var.address_space.frontend_subnet]
 }
 
 resource "azurerm_subnet" "backend" {
-  name                 = "SNET-4"
+  name                 = "SNET-5"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.app.name
   address_prefixes     = [var.address_space.backend_subnet]
 }
 
 resource "azurerm_subnet" "postgres" {
-  name                 = "SNET-5"
+  name                 = "SNET-6"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.data.name
   address_prefixes     = [var.address_space.postgres_subnet]
@@ -64,6 +79,13 @@ resource "azurerm_subnet" "postgres" {
       actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
     }
   }
+}
+
+resource "azurerm_subnet" "docs" {
+  name                 = "SNET-7"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = azurerm_virtual_network.docs.name
+  address_prefixes     = [var.address_space.docs_subnet]
 }
 
 resource "azurerm_virtual_network_peering" "hub_to_app" {

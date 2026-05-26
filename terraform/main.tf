@@ -59,10 +59,6 @@ module "loadbalancer" {
   frontend_probe_host = var.frontend_probe_host
   catalog_private_ip  = module.compute_backend.catalog_private_ip
   cart_private_ip     = module.compute_backend.cart_private_ip
-  frontend_host_name  = var.frontend_host_name
-  catalog_host_name   = var.catalog_host_name
-  cart_host_name      = var.cart_host_name
-  enable_host_routing = var.enable_host_routing
   tags                = var.tags
 }
 
@@ -81,10 +77,34 @@ module "compute_frontend" {
   admin_password               = var.admin_password
   repository_url               = var.repository_url
   repository_branch            = var.repository_branch
-  catalog_api_url              = var.enable_host_routing ? "https://${var.catalog_host_name}" : "/catalog-api"
-  cart_api_url                 = var.enable_host_routing ? "https://${var.cart_host_name}" : "/cart-api"
+  catalog_api_url              = "/catalog-api"
+  cart_api_url                 = "/cart-api"
   app_gateway_subnet_cidr      = var.address_space.hub_appgw_subnet
   tags                         = var.tags
 
   depends_on = [module.loadbalancer]
+}
+
+module "bastion" {
+  source              = "./modules/bastion"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  bastion_subnet_id   = module.networking.bastion_subnet_id
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  vm_size             = "Standard_B1s"
+  tags                = var.tags
+}
+
+module "docs" {
+  source              = "./modules/docs"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  docs_subnet_id      = module.networking.docs_subnet_id
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  repository_url      = var.repository_url
+  repository_branch   = var.repository_branch
+  vm_size             = "Standard_B1s"
+  tags                = var.tags
 }

@@ -1,0 +1,17 @@
+#cloud-config
+package_update: true
+packages:
+  - curl
+  - git
+  - jq
+  - net-tools
+  - htop
+  - vim
+  - git
+  - openssh-client
+  - telnet
+  - traceroute
+  - iputils-ping
+
+runcmd:
+  - echo "Bastion host initialized successfully"

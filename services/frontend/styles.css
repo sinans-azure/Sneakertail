@@ -291,7 +291,7 @@ a {
 }
 
 .featured-slide img {
-  height: 100vh;
+  height: clamp(300px, 60vh, 600px);
   object-fit: cover;
   width: 100%;
 }

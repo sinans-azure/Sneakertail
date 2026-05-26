@@ -1,30 +1,24 @@
 #cloud-config
 package_update: true
-packages:
-  - curl
-  - git
-  - postgresql-client
-
+packages: [curl, git, postgresql-client]
 runcmd:
-  - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-  - apt-get install -y nodejs
-  - rm -rf /opt/Sneakertail
+  - curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
   - git clone --branch ${repository_branch} ${repository_url} /opt/Sneakertail
   - sed -i "/CREATE EXTENSION IF NOT EXISTS pgcrypto/d" /opt/Sneakertail/infra/postgres/init.sql /opt/Sneakertail/services/catalog-service/src/db.js
-  - cd /opt/Sneakertail && PGPASSWORD='${postgres_admin_password}' psql "host=${postgres_fqdn} port=5432 dbname=${postgres_database_name} user=${postgres_admin_login} sslmode=require" -f infra/postgres/init.sql
+  - PGPASSWORD='${postgres_admin_password}' psql "host=${postgres_fqdn} port=5432 dbname=${postgres_database_name} user=${postgres_admin_login} sslmode=require" -f /opt/Sneakertail/infra/postgres/init.sql
   - cd /opt/Sneakertail && npm ci --omit=dev --workspace services/catalog-service
   - |
-    cat > /etc/systemd/system/sneakertail-catalog.service <<'EOF'
+    cat > /etc/systemd/system/catalog.service <<EOF
     [Unit]
     Description=Sneakertail catalog service
     After=network-online.target
 
     [Service]
     WorkingDirectory=/opt/Sneakertail
-    Environment=NODE_ENV=production
-    Environment=PORT=4001
-    Environment=DB_SSL=true
-    Environment=DATABASE_URL=${database_url}
+    Environment="NODE_ENV=production"
+    Environment="PORT=4001"
+    Environment="DB_SSL=true"
+    Environment="DATABASE_URL=${database_url}"
     ExecStart=/usr/bin/node services/catalog-service/src/server.js
     Restart=always
     RestartSec=5
@@ -33,4 +27,4 @@ runcmd:
     WantedBy=multi-user.target
     EOF
   - systemctl daemon-reload
-  - systemctl enable --now sneakertail-catalog.service
+  - systemctl enable --now catalog
