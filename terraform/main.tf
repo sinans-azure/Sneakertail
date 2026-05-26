@@ -92,7 +92,7 @@ module "bastion" {
   bastion_subnet_id   = module.networking.bastion_subnet_id
   admin_username      = var.admin_username
   admin_password      = var.admin_password
-  vm_size             = "Standard_B1s"
+  vm_size             = var.bastion_vm_size
   tags                = var.tags
 }
 
@@ -105,6 +105,6 @@ module "docs" {
   admin_password      = var.admin_password
   repository_url      = var.repository_url
   repository_branch   = var.repository_branch
-  vm_size             = "Standard_B1s"
+  vm_size             = var.docs_vm_size
   tags                = var.tags
 }

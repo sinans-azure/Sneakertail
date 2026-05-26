@@ -14,6 +14,8 @@ postgres_storage_mb     = 32768
 
 backend_vm_size  = "Standard_B1s"
 frontend_vm_size = "Standard_B1s"
+bastion_vm_size  = "Standard_D2als_v6"
+docs_vm_size     = "Standard_D2als_v6"
 
 frontend_instance_count          = 2
 frontend_autoscale_min_instances = 2

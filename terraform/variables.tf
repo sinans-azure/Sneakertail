@@ -77,14 +77,24 @@ variable "frontend_vm_size" {
   default = "Standard_B1s"
 }
 
+variable "bastion_vm_size" {
+  type    = string
+  default = "Standard_D2als_v6"
+}
+
+variable "docs_vm_size" {
+  type    = string
+  default = "Standard_D2als_v6"
+}
+
 variable "frontend_instance_count" {
   type    = number
-  default = 2
+  default = 1
 }
 
 variable "frontend_autoscale_min_instances" {
   type    = number
-  default = 2
+  default = 1
 }
 
 variable "frontend_autoscale_max_instances" {
