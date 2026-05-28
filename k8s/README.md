@@ -43,17 +43,17 @@ docker login
 Build the three images:
 
 ```powershell
-docker build -t muhammedsinanust/sneakertail-frontend:latest -f services/frontend/Dockerfile .
-docker build -t muhammedsinanust/sneakertail-catalog-service:latest -f services/catalog-service/Dockerfile .
-docker build -t muhammedsinanust/sneakertail-cart-order-service:latest -f services/cart-order-service/Dockerfile .
+sudo docker build -t muhammedsinanust/sneakertail-frontend:latest -f services/frontend/Dockerfile .
+sudo docker build -t muhammedsinanust/sneakertail-catalog-service:latest -f services/catalog-service/Dockerfile .
+sudo docker build -t muhammedsinanust/sneakertail-cart-order-service:latest -f services/cart-order-service/Dockerfile .
 ```
 
 Push the images:
 
 ```powershell
-docker push muhammedsinanust/sneakertail-frontend:latest
-docker push muhammedsinanust/sneakertail-catalog-service:latest
-docker push muhammedsinanust/sneakertail-cart-order-service:latest
+sudo docker push muhammedsinanust/sneakertail-frontend:latest
+sudo docker push muhammedsinanust/sneakertail-catalog-service:latest
+sudo docker push muhammedsinanust/sneakertail-cart-order-service:latest
 ```
 
 If the Docker Hub repositories are private, create an image pull secret:
@@ -82,10 +82,10 @@ For public Docker Hub repositories, skip the image pull secret.
 Copy the example secret:
 
 ```powershell
-Copy-Item k8s\secret.example.yaml k8s\secret.yaml
+sudo cp k8s/secret.example.yaml k8s/secret.yaml
 ```
 
-Edit `k8s\secret.yaml` and replace:
+Edit `k8s/secret.yaml` and replace:
 
 - `<postgres-password>`
 - `<postgres-fqdn>`
@@ -98,7 +98,7 @@ The final value should look like this:
 postgres://pgadminuser:<postgres-password>@<postgres-fqdn>:5432/sneakertail?sslmode=require
 ```
 
-Keep `k8s\secret.yaml` local. Do not commit it.
+Keep `k8s/secret.yaml` local. Do not commit it.
 
 ## 4. Deploy To AKS
 
