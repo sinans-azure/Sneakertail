@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+  namespace: sneakertail
+spec:
+  type: ClusterIP
+  selector:
+    app: catalog-service
+  ports:
+    - name: http
+      port: 4001
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-order-service
+  namespace: sneakertail
+spec:
+  type: ClusterIP
+  selector:
+    app: cart-order-service
+  ports:
+    - name: http
+      port: 4002
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: sneakertail
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

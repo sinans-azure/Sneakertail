@@ -56,6 +56,8 @@ For direct non-Docker frontend development, edit `services/frontend/config.js` a
 
 Terraform for the Azure demo environment is available in `terraform/`. See `terraform/README.md` for deployment commands and module details.
 
+AKS deployment manifests are available in `k8s/`. See `k8s/README.md` for Docker Hub image publishing, Azure PostgreSQL Flexible Server setup, and AKS deployment steps.
+
 ## Azure Architecture Plan
 
 This project is suitable for a VM-based Azure demonstration with Application Gateway, WAF, VM Scale Sets, VNet peering, and Azure Database for PostgreSQL Flexible Server.
