@@ -241,6 +241,7 @@ If the frontend loads but products do not, check:
 - `CATALOG_PROXY_URL=http://catalog-service`
 - `CART_PROXY_URL=http://cart-order-service`
 - Both backend apps have internal ingress enabled.
+- The frontend image is rebuilt after nginx proxy changes. Container Apps service discovery needs the proxied `Host` header to match the backend app name, so older frontend images can return `404` for `/catalog-api/api/products`.
 
 ## References
 
