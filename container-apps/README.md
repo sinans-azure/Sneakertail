@@ -61,6 +61,33 @@ Subnet note: Microsoft documents that Container Apps needs a dedicated subnet fo
 
 The frontend image must be rebuilt because it now supports Container Apps proxy targets.
 
+### Option A: GitHub Actions, No Local Docker
+
+Use this option if Docker is not installed locally.
+
+In GitHub, add these repository secrets:
+
+```text
+DOCKERHUB_USERNAME=muhammedsinanust
+DOCKERHUB_TOKEN=<docker-hub-access-token>
+```
+
+Then run the workflow:
+
+```text
+GitHub repo -> Actions -> Build and Push Docker Hub Images -> Run workflow
+```
+
+The workflow builds and pushes:
+
+```text
+muhammedsinanust/sneakertail-frontend:latest
+muhammedsinanust/sneakertail-catalog-service:latest
+muhammedsinanust/sneakertail-cart-order-service:latest
+```
+
+### Option B: Local Docker
+
 From the repository root:
 
 ```powershell

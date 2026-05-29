@@ -34,6 +34,23 @@ kubectl get nodes
 
 ## 2. Build And Push Images To Docker Hub
 
+If Docker is not installed locally, use the GitHub Actions workflow in `.github/workflows/dockerhub-images.yml`.
+
+Add these GitHub repository secrets:
+
+```text
+DOCKERHUB_USERNAME=muhammedsinanust
+DOCKERHUB_TOKEN=<docker-hub-access-token>
+```
+
+Then run:
+
+```text
+GitHub repo -> Actions -> Build and Push Docker Hub Images -> Run workflow
+```
+
+To build locally instead, use the commands below.
+
 From the repository root, sign in to Docker Hub:
 
 ```powershell
